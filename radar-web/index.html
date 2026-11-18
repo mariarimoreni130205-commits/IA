@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#173b34">
+  <meta name="description" content="Contanos qué viaje tenés en mente. Radar compara vuelos según tus preferencias y te ayuda a seguir las mejores oportunidades.">
+  <title>Radar de Vuelos — Menos buscar. Más descubrir.</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;650;700;750;800&display=swap" rel="stylesheet">
+  <link rel="preload" as="image" href="assets/hero.webp" fetchpriority="high">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="globe.css">
+  <script src="airport-data.js" defer></script>
+  <script src="engine.js" defer></script>
+  <script src="app.js" defer></script>
+  <script type="module" src="globe.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Saltar al contenido</a>
+  <div class="page-shell">
+    <header class="site-header">
+      <a class="brand" href="#explorar" aria-label="Radar de Vuelos, inicio">
+        <svg class="brand-mark" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="21"/><path d="m13 23 23-11-11 24-3-11z"/></svg>
+        <span class="brand-type">radar<span>DE VUELOS</span></span>
+      </a>
+      <nav class="main-nav" aria-label="Navegación principal">
+        <a href="#explorar" data-nav="explorar" class="active" aria-current="page">Explorar</a>
+        <a href="#busquedas" data-nav="busquedas">Mis búsquedas <span class="nav-count" id="count-searches" hidden>0</span></a>
+        <a href="#alertas" data-nav="alertas">Alertas <span class="nav-count" id="count-alerts" hidden>0</span></a>
+      </nav>
+      <div class="header-actions">
+        <button class="icon-button notification-button" data-action="notifications" aria-label="Ver alertas"><span data-icon="bell"></span><span id="notification-dot" hidden></span></button>
+        <button class="avatar" data-action="profile" aria-label="Tu espacio personal">M</button>
+      </div>
+    </header>
+
+    <main id="main">
+      <div id="view-explorar" class="view">
+        <section class="hero" aria-labelledby="hero-title">
+          <img class="hero-image" src="assets/hero.webp" alt="Acantilados dorados y mar turquesa en la costa de Portugal" width="3072" height="1024" fetchpriority="high">
+          <div class="hero-shade"></div>
+          <div class="hero-content">
+            <p class="eyebrow">TU PRÓXIMO VIAJE, A TU MANERA</p>
+            <h1 id="hero-title">Menos buscar.<br>Más descubrir.</h1>
+            <p class="hero-subtitle">Contanos qué tenés en mente. Encontramos el vuelo para vos.</p>
+            <form id="search-form" class="search-composer">
+              <label for="query">¿Qué viaje te gustaría hacer?</label>
+              <div class="composer-main">
+                <textarea id="query" rows="1" maxlength="1500" aria-describedby="search-error" placeholder="Por ejemplo: una semana de playa, hasta US$ 600…">Quiero ir a Europa en febrero, hasta US$ 1.200, por 14 días.</textarea>
+                <button type="submit" class="button primary" id="search-button"><span>Encontrar vuelos</span><span data-icon="arrow"></span></button>
+              </div>
+              <div class="composer-options">
+                <label class="select-control"><span data-icon="pin"></span><select id="origin" aria-label="Ciudad de salida"><option value="EZE">Desde Buenos Aires</option><option value="ROS">Desde Rosario</option><option value="">Cualquier salida</option></select><span data-icon="chevron"></span></label>
+                <span class="option-divider"></span>
+                <label class="select-control"><span data-icon="calendar"></span><select id="month" aria-label="Mes de salida"><option value="">Fechas flexibles</option></select><span data-icon="chevron"></span></label>
+                <button class="icon-button voice-button" id="voice-button" type="button" data-action="voice" aria-label="Dictar mi viaje" title="Dictar mi viaje"><span data-icon="mic"></span></button>
+              </div>
+              <p id="search-error" class="field-error" role="alert" hidden></p>
+            </form>
+          </div>
+        </section>
+
+        <div id="understood" class="understood"></div>
+        <section id="clarifications" class="clarifications" aria-label="Aclarar tu búsqueda" hidden></section>
+        <form id="filters-form" class="filters-form" hidden>
+          <div class="section-heading"><h2>Ajustá tu búsqueda</h2><button class="icon-button" type="button" data-action="close-filters" aria-label="Cerrar filtros"><span data-icon="close"></span></button></div>
+          <div class="filter-fields">
+            <label>Presupuesto máximo (USD)<input id="filter-budget" type="number" min="50" max="100000" step="1" placeholder="Sin límite"></label>
+            <label>Días de viaje<input id="filter-days" type="number" min="1" max="90" step="1" placeholder="Cualquier duración"></label>
+            <label>Escalas<select id="filter-stops"><option value="0">Solo directos</option><option value="1">Hasta 1 escala</option><option value="2">Hasta 2 escalas</option></select></label>
+            <button class="button primary" type="submit">Aplicar cambios<span data-icon="arrow"></span></button>
+          </div>
+        </form>
+
+        <section class="recommendations" id="recommendations" aria-labelledby="results-title">
+          <div class="section-heading recommendations-heading">
+            <div><h2 id="results-title">Un viaje que encaja con vos.</h2><p id="results-description">Ordenamos las opciones según tu presupuesto, tus fechas y tu forma de viajar.</p></div>
+            <label class="sort-control"><select id="sort" aria-label="Ordenar vuelos"><option value="match">Mejor coincidencia</option><option value="price">Menor precio</option><option value="duration">Menor duración</option></select><span data-icon="chevron"></span></label>
+          </div>
+          <div id="results-status" class="results-status" aria-live="polite"></div>
+          <div id="flight-grid" class="flight-grid" aria-busy="false"></div>
+          <div class="results-bottom"><button class="text-link" id="show-all" data-action="show-all">Ver todas las opciones<span data-icon="arrow"></span></button><span id="data-source" class="data-source"></span></div>
+        </section>
+
+        <section class="assistant" id="assistant" aria-labelledby="assistant-title">
+          <div class="assistant-summary">
+            <div class="assistant-label"><span class="assistant-symbol" data-icon="sliders"></span><span>AFINEMOS<br>TU VIAJE</span></div>
+            <div class="assistant-intro"><h2 id="assistant-title">Tu viaje cambia. La búsqueda también.</h2><p>Pedile al asistente que ajuste las opciones.</p><div class="suggestions"><button data-prompt="Prefiero vuelos directos">Prefiero vuelos directos</button><button data-prompt="Busquemos algo más barato">Busquemos algo más barato</button><button data-prompt="¿Por qué Lisboa?">¿Por qué Lisboa?</button></div></div>
+            <button class="round-button" data-action="toggle-chat" aria-label="Abrir conversación" aria-expanded="false" id="toggle-chat"><span data-icon="arrow"></span></button>
+          </div>
+          <div id="chat-panel" class="chat-panel" hidden>
+            <div id="chat-messages" class="chat-messages" role="log" aria-live="polite" aria-label="Conversación con el asistente"></div>
+            <form id="chat-form" class="chat-form"><label class="sr-only" for="chat-input">Tu mensaje</label><input id="chat-input" placeholder="Más barato, más días, sin escalas…" maxlength="800" autocomplete="off"><button class="round-button" id="chat-send" type="submit" aria-label="Enviar mensaje"><span data-icon="arrow"></span></button></form>
+            <p class="chat-note">El asistente compara opciones con tus preferencias. Precios sujetos a disponibilidad.</p>
+          </div>
+        </section>
+
+        <section class="world-section" id="mundo" aria-labelledby="world-title">
+          <div class="world-copy">
+            <p class="eyebrow">EL PRÓXIMO DESTINO ESTÁ AHÍ AFUERA</p>
+            <h2 id="world-title">Un mundo de<br>posibilidades.</h2>
+            <p class="world-description">Girá el mundo. Tocá una ciudad o un avión y descubrí tu próximo destino.</p>
+            <div class="world-routes" role="group" aria-label="Explorar rutas ilustrativas">
+              <button type="button" data-world-route="0" aria-label="Ver ruta de Buenos Aires a Lisboa" aria-pressed="true" disabled><span class="world-route-dot"></span><span>Buenos Aires <span aria-hidden="true">→</span> Lisboa</span><span class="world-route-arrow" aria-hidden="true">↗</span></button>
+              <button type="button" data-world-route="1" aria-label="Ver ruta de Madrid a Roma" aria-pressed="false" disabled><span class="world-route-dot"></span><span>Madrid <span aria-hidden="true">→</span> Roma</span><span class="world-route-arrow" aria-hidden="true">↗</span></button>
+              <button type="button" data-world-route="2" aria-label="Ver ruta de Nueva York a París" aria-pressed="false" disabled><span class="world-route-dot"></span><span>Nueva York <span aria-hidden="true">→</span> París</span><span class="world-route-arrow" aria-hidden="true">↗</span></button>
+            </div>
+            <div class="world-detail" id="world-detail" hidden role="region" aria-labelledby="world-detail-title">
+              <div class="world-detail-top"><p class="eyebrow" id="world-detail-kind"></p><button type="button" id="world-detail-close" aria-label="Cerrar detalle del mundo">×</button></div>
+              <h3 id="world-detail-title" tabindex="-1"></h3>
+              <div id="world-airport-info">
+                <p id="world-airport-name"></p>
+                <dl class="world-airport-facts"><div><dt>País</dt><dd id="world-airport-country"></dd></div><div><dt>Código IATA</dt><dd id="world-airport-code"></dd></div></dl>
+              </div>
+              <div id="world-flight-info" hidden>
+                <div class="world-flight-endpoints"><button type="button" id="world-flight-origin"></button><span aria-hidden="true">→</span><button type="button" id="world-flight-destination"></button></div>
+                <div class="world-flight-progress-head"><span id="world-flight-status">En vuelo</span><span id="world-flight-percent">0 %</span></div>
+                <div class="world-progress" id="world-progress" role="progressbar" aria-label="Avance del vuelo simulado" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div>
+                <p class="world-flight-time" id="world-flight-time"></p>
+              </div>
+              <button class="button primary world-search" id="world-search" type="button">Buscar vuelos a este destino <span aria-hidden="true">↗</span></button>
+            </div>
+            <details class="world-browser" id="world-browser">
+              <summary>Explorar ciudades y vuelos <span aria-hidden="true">+</span></summary>
+              <label>Elegí una ciudad<select id="world-city-select" aria-label="Elegí una ciudad" disabled><option value="">Ciudades y aeropuertos</option></select></label>
+              <label>Elegí un vuelo simulado<select id="world-flight-select" aria-label="Elegí un vuelo simulado" disabled><option value="">Vuelos en el mundo</option></select></label>
+            </details>
+            <p class="world-caption"><span></span>Vuelos simulados. Inspiración sin escalas.</p>
+          </div>
+          <div class="world-visual">
+            <div class="world-stage" id="world-stage" aria-busy="true">
+              <div class="world-placeholder" aria-hidden="true"></div>
+              <p class="world-loading" id="world-loading" role="status">Preparando el mundo…</p>
+              <div class="world-labels" id="world-labels" aria-label="Ciudades visibles en el mundo"></div>
+              <div class="world-tooltip" id="world-tooltip" role="tooltip" hidden></div>
+            </div>
+            <div class="world-toolbar">
+              <p id="world-help"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 13V6a2 2 0 0 1 4 0v6-2a2 2 0 0 1 4 0v2a2 2 0 0 1 4 0v5c0 3-2 5-5 5h-2c-2 0-3-1-4-3l-4-6a2 2 0 0 1 3-2l2 2"/></svg><span>Arrastrá para girar</span></p>
+              <div class="world-controls">
+                <button type="button" id="world-zoom-out" aria-label="Alejar el mundo" title="Alejar" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg></button>
+                <button type="button" id="world-zoom-in" aria-label="Acercar el mundo" title="Acercar" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12M12 6v12"/></svg></button>
+                <button type="button" id="world-pause" aria-label="Pausar animación" aria-pressed="false" title="Pausar animación" disabled><svg class="world-pause-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg><svg class="world-play-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 11 7-11 7Z"/></svg></button>
+                <button type="button" id="world-reset" aria-label="Volver a la vista inicial" title="Volver a la vista inicial" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10a8 8 0 1 1 1 7M4 4v6h6"/></svg></button>
+              </div>
+            </div>
+            <p class="world-credits">Texturas: <a href="https://www.solarsystemscope.com/textures/" target="_blank" rel="noopener noreferrer">Solar System Scope</a> · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a></p>
+            <p class="sr-only" id="world-keyboard-help">Globo interactivo con rutas simuladas. Arrastrá con el mouse o un dedo para girarlo. Pellizcá con dos dedos o usá los botones para acercar y alejar. Tocá una ciudad o un avión para ver sus detalles. También podés elegirlos en Explorar ciudades y vuelos. Flechas para girar, más y menos para zoom, Inicio para restablecer, espacio para pausar y Escape para cerrar el detalle.</p>
+            <p class="sr-only" id="world-announcement" aria-live="polite"></p>
+          </div>
+        </section>
+
+        <section class="radar-section" aria-labelledby="radar-title">
+          <div class="watchlist-preview"><div class="section-heading"><div><h2 id="radar-title">Tu radar sigue buscando.</h2><p>Guardá tu búsqueda y enterate cuando aparezca una oportunidad.</p></div><a class="text-link small" href="#busquedas">Ver mis búsquedas<span data-icon="arrow"></span></a></div><div id="watch-preview"></div><button class="button outline small" data-action="create-watch"><span data-icon="plus"></span>Crear una alerta</button><p class="monitor-note">El radar se actualiza mientras tenés la app abierta.</p></div>
+          <aside id="opportunity" class="opportunity" aria-label="Oportunidad destacada"></aside>
+        </section>
+      </div>
+
+      <section id="view-busquedas" class="view inner-view" hidden aria-labelledby="searches-title">
+        <a href="#explorar" class="text-link back-link"><span data-icon="arrow-left"></span>Volver a explorar</a>
+        <div class="section-heading"><div><p class="eyebrow">TUS PRÓXIMOS DESTINOS</p><h1 id="searches-title">Mis búsquedas.</h1><p>Un lugar para los viajes que tenés en mente.</p></div><button class="button primary" data-action="new-search">Nueva búsqueda<span data-icon="plus"></span></button></div>
+        <div class="monitor-toolbar"><div><span class="status-dot"></span><span id="monitor-label">Seguimiento en esta sesión</span></div><button class="button outline small" data-action="refresh-all" id="refresh-all"><span data-icon="refresh"></span>Revisar ahora</button><button class="button outline small" data-action="simulate" id="simulate">Simular cambio de precios</button></div>
+        <p class="section-note">Las búsquedas se guardan en este navegador. El seguimiento se pausa al cerrar la app. La simulación modifica únicamente vuelos de demostración.</p>
+        <div id="saved-searches" class="saved-searches"></div>
+        <section class="bookmarks-section" aria-labelledby="bookmarks-title"><div class="section-heading"><div><h2 id="bookmarks-title">Vuelos guardados</h2><p>Las opciones que querés volver a mirar.</p></div></div><div id="bookmarks-grid" class="flight-grid"></div></section>
+      </section>
+
+      <section id="view-alertas" class="view inner-view" hidden aria-labelledby="alerts-title">
+        <a href="#explorar" class="text-link back-link"><span data-icon="arrow-left"></span>Volver a explorar</a>
+        <div class="section-heading"><div><p class="eyebrow">BUENAS NOTICIAS PARA TU VIAJE</p><h1 id="alerts-title">Tus alertas.</h1><p>Las oportunidades de tus búsquedas, en un solo lugar.</p></div><button class="button outline small" data-action="read-all">Marcar todas como leídas</button></div>
+        <div class="alert-filters" role="group" aria-label="Filtrar alertas"><button class="chip active" data-alert-filter="all" aria-pressed="true">Todas</button><button class="chip" data-alert-filter="unread" aria-pressed="false">Sin leer</button></div>
+        <div id="alerts-list" class="alerts-list"></div>
+      </section>
+    </main>
+
+    <footer class="site-footer"><a class="brand small-brand" href="#explorar" aria-label="Radar de Vuelos, inicio"><svg class="brand-mark" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="21"/><path d="m13 23 23-11-11 24-3-11z"/></svg><span class="brand-type">radar<span>DE VUELOS</span></span></a><p>Menos vueltas. Más mundo.</p><div><button data-action="help">Ayuda</button><button data-action="privacy">Privacidad</button></div><span class="footer-note" id="footer-source">Modo demo · Precios ilustrativos</span></footer>
+  </div>
+  <dialog id="detail-dialog" class="detail-dialog"><button class="dialog-close icon-button" data-action="close-dialog" aria-label="Cerrar"><span data-icon="close"></span></button><div id="dialog-content"></div></dialog>
+  <div class="toast-region" id="toasts" role="status" aria-live="polite"></div>
+</body>
+</html>
