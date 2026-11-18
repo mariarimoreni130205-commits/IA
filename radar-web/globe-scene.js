@@ -225,7 +225,7 @@ export async function mountWorld(section,stage) {
   listen(canvas,'webglcontextlost',event=>{event.preventDefault();lost=true;stopLoop();stage.dataset.state='error';loading.textContent='La vista 3D se está recuperando…';loading.hidden=false;ui.enable(false);ui.labels.forEach(label=>label.hidden=true);});
   listen(canvas,'webglcontextrestored',()=>{lost=false;stage.dataset.state='ready';loading.hidden=true;dirty=true;ui.enable(true);startLoop();});
   listen(window,'pagehide',event=>{
-    stopLoop();if(event.persisted)return;disposed=true;controls.dispose();resizeObserver.disconnect();visibilityObserver.disconnect();listeners.forEach(remove=>remove());
+    stopLoop();if(event.persisted)return;disposed=true;controls.dispose();ui.dispose();resizeObserver.disconnect();visibilityObserver.disconnect();listeners.forEach(remove=>remove());
     const geometries=new Set(),materials=new Set();scene.traverse(item=>{if(item.geometry)geometries.add(item.geometry);if(item.material)materials.add(item.material);});
     geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());textures.forEach(t=>t.dispose());renderer.dispose();
   });

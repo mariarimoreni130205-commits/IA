@@ -3,7 +3,20 @@ import {AIRPORT_INFO,FLIGHT_ROUTES} from './globe-routes.js';
 export function createWorldUI(section,actions) {
   const $=id=>document.getElementById(id),detail=$('world-detail'),labels=new Map();
   const featured=section.querySelector('.world-routes');
+  const compact=matchMedia('(max-width:700px)'),detailHome=document.createComment('World detail position');
+  detail.before(detailHome);
   let selection=null,lastPercent=-1,lastSecond=-1;
+  function syncPresentation(){
+    // A body-level sheet escapes the globe section's clipping and stacking contexts.
+    if(compact.matches){if(detail.parentElement!==document.body)document.body.append(detail);}
+    else if(detail.previousSibling!==detailHome)detailHome.after(detail);
+    // Keep the mobile globe in place when a selection opens or closes.
+    featured.hidden=!!selection&&!compact.matches;
+  }
+  const onNavigation=()=>{if(selection)actions.clear();};
+  compact.addEventListener('change',syncPresentation);
+  window.addEventListener('hashchange',onNavigation);
+  syncPresentation();
   for(const [code,airport] of Object.entries(AIRPORT_INFO).sort((a,b)=>a[1].city.localeCompare(b[1].city,'es'))){
     const option=new Option(`${airport.city} · ${code}`,code);$('world-city-select').add(option);
     const label=document.createElement('button');label.type='button';label.className='world-city-label';label.hidden=true;
@@ -24,9 +37,10 @@ export function createWorldUI(section,actions) {
   });
   $('world-pause').addEventListener('click',actions.pause);$('world-reset').addEventListener('click',actions.reset);
   $('world-zoom-in').addEventListener('click',()=>actions.zoom(-1));$('world-zoom-out').addEventListener('click',()=>actions.zoom(1));
-  section.addEventListener('keydown',event=>{if(event.key==='Escape'&&selection){event.preventDefault();actions.clear(true);}});
+  const onEscape=event=>{if(event.key==='Escape'&&selection){event.preventDefault();actions.clear(true);}};
+  section.addEventListener('keydown',onEscape);detail.addEventListener('keydown',onEscape);
   function open(type,title) {
-    detail.hidden=false;featured.hidden=true;$('world-detail-title').textContent=title;
+    syncPresentation();detail.hidden=false;$('world-detail-title').textContent=title;
     $('world-airport-info').hidden=type!=='airport';$('world-flight-info').hidden=type!=='flight';
     $('world-detail-title').focus({preventScroll:true});
   }
@@ -51,7 +65,8 @@ export function createWorldUI(section,actions) {
       $('world-flight-select').value=String(index);$('world-city-select').value='';syncLabels();
       $('world-search').setAttribute('aria-label',`Buscar vuelos a ${AIRPORT_INFO[to].city}`);this.announce(`Vuelo simulado de ${AIRPORT_INFO[from].city} a ${AIRPORT_INFO[to].city}.`);
     },
-    clear(){selection=null;detail.hidden=true;featured.hidden=false;$('world-city-select').value='';$('world-flight-select').value='';syncLabels();},
+    clear(){selection=null;detail.hidden=true;syncPresentation();$('world-city-select').value='';$('world-flight-select').value='';syncLabels();},
+    dispose(){compact.removeEventListener('change',syncPresentation);window.removeEventListener('hashchange',onNavigation);section.removeEventListener('keydown',onEscape);detail.removeEventListener('keydown',onEscape);detailHome.after(detail);detailHome.remove();},
     updateFlight(phase){
       const percent=Math.floor(phase.progress*100),seconds=Math.ceil(phase.remaining);
       if(percent!==lastPercent){$('world-flight-percent').textContent=`${percent} %`;$('world-progress').setAttribute('aria-valuenow',String(percent));$('world-progress').firstElementChild.style.width=`${percent}%`;lastPercent=percent;}
