@@ -82,42 +82,6 @@ La cabecera implementa el concepto aprobado con tres renders independientes en `
 
 El desplazamiento de la página es normal: no hay escenas fijadas ni transiciones asociadas al scroll. Las animaciones CSS se pausan cuando el hero queda fuera de pantalla, al ocultar la pestaña o con el control de pausa; se respeta `prefers-reduced-motion`. El buscador sigue siendo HTML accesible y lleva a las aclaraciones o resultados al enviar. `navigation.js` convierte la navegación móvil en un menú hamburguesa que se cierra al elegir una sección, tocar afuera o presionar Escape.
 
-## Visita de Torre Urbana
-
-La experiencia combina una fachada fotorealista generada y una toma de video de
-la suite creada en Google Flow. Es una composición interactiva de imagen y video,
-no un edificio 3D navegable. El hotel, las habitaciones y la ciudad son ficticios.
-Hay nueve pisos y tres ventanas por piso: cada habitación tiene su propia entrada,
-aunque todas reutilizan el mismo diseño y recorrido interior.
-
-`hotel-motion.js` define las 27 ventanas sobre la fotografía y calcula las
-transformaciones de perspectiva. El acercamiento apunta a la ventana elegida,
-encuadra allí el primer fotograma del interior y lo lleva hasta ocupar la pantalla.
-Al llegar, comienza la toma continua de la suite. La vuelta reproduce los mismos
-fotogramas en orden inverso y deshace el acercamiento hacia la ventana seleccionada.
-No se encadenan clips independientes ni se busca una ventana fija para todos.
-La perspectiva es una ilusión 2.5D: no existe libertad para caminar por la escena.
-
-`hotel.js` controla selección, pausa, carga y regreso. El movimiento del exterior
-se actualiza con `requestAnimationFrame` y tiempo transcurrido; no tiene un bucle
-activo cuando está detenido. Se pausa al ocultar la pestaña o salir de pantalla.
-Los controles de piso/habitación funcionan con teclado y ofrecen blancos táctiles
-de al menos 44 px. Movimiento reducido evita el hover automático y acorta el zoom.
-
-El recorrido original de Flow tiene 358 fotogramas a 24 FPS (aproximadamente 15 s),
-generados a 720p y reescalados en Flow a 1080p. No son 60 FPS nativos. El MP4 web
-contiene ida y vuelta; la versión móvil tiene 960 × 540 y pesa aproximadamente 9 MB.
-El acercamiento del navegador sigue la frecuencia de pantalla y el rendimiento
-del equipo. Los medios se precargan al acercarse al hotel, sin una llamada a Flow
-por visitante. No se necesita una cuenta de Flow para usar la página.
-
-`hotel-playback.js` convierte los tiempos entre ida y vuelta; `tour.json` registra
-los límites exactos por fotograma. `server.mjs` admite HTTP Range para adelantar o
-retroceder dentro del MP4. Vercel sirve los medios como archivos estáticos.
-Las pruebas comprueban la proyección de cada ventana, la coincidencia del portal
-con el video en escritorio/celular y los tiempos del regreso. Créditos y origen
-de los recursos en `assets/hotel/CREDITS.md`.
-
 ## Mundo 3D
 
 `globe.js` carga Three.js y la escena al acercarse la sección al área visible. `globe-scene.js` dibuja una Tierra texturada, una capa de nubes, una atmósfera suave y aviones modelados con geometría procedural. Los vuelos siguen arcos geográficos entre coordenadas de aeropuertos; todos son simulados, sin conexión a datos de tráfico aéreo.

@@ -14,14 +14,12 @@
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="hero.css">
   <link rel="stylesheet" href="globe.css">
-  <link rel="stylesheet" href="hotel.css">
   <script src="airport-data.js" defer></script>
   <script src="engine.js" defer></script>
   <script src="app.js" defer></script>
   <script src="navigation.js" defer></script>
   <script type="module" src="hero.js"></script>
   <script type="module" src="globe.js"></script>
-  <script type="module" src="hotel.js"></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Saltar al contenido</a>
@@ -111,26 +109,6 @@
             <form id="chat-form" class="chat-form"><label class="sr-only" for="chat-input">Tu mensaje</label><input id="chat-input" placeholder="Más barato, más días, sin escalas…" maxlength="800" autocomplete="off"><button class="round-button" id="chat-send" type="submit" aria-label="Enviar mensaje"><span data-icon="arrow"></span></button></form>
             <p class="chat-note">El asistente compara opciones con tus preferencias. Precios sujetos a disponibilidad.</p>
           </div>
-        </section>
-
-        <section class="hotel-section" id="hotel" aria-labelledby="hotel-title">
-          <div class="hotel-heading"><div><p class="eyebrow">TU VIAJE, UN POCO MÁS CERCA</p><h2 id="hotel-title">Entrá antes de llegar.</h2></div><p>Descubrí Torre Urbana. Elegí tu ventana y entrá a una suite con vista a la ciudad.</p></div>
-          <div class="hotel-stage" id="hotel-stage" aria-busy="true" data-state="overview">
-            <div class="hotel-world" id="hotel-world">
-              <img class="hotel-exterior" src="assets/hotel/exterior-photo.webp" alt="Torre Urbana, un hotel de vidrio y bronce entre edificios de la ciudad al atardecer" width="1672" height="941" loading="lazy">
-              <div class="hotel-portal" id="hotel-portal" aria-hidden="true"><img src="assets/hotel/suite-poster.webp" alt="" loading="lazy"></div>
-              <svg class="hotel-hotspots" id="hotel-hotspots" viewBox="0 0 1672 941" aria-label="Ventanas de las habitaciones"></svg>
-            </div>
-            <video id="hotel-video" muted playsinline preload="none" aria-label="Recorrido por la suite panorámica" disablepictureinpicture hidden></video>
-            <canvas class="hotel-hold" id="hotel-hold" aria-hidden="true" hidden></canvas>
-            <div class="hotel-topline"><div class="hotel-brand">radar<span>estancias</span></div><span class="hotel-scene-name">Torre Urbana · Suite panorámica</span></div>
-            <div class="hotel-bottomline"><div class="hotel-caption"><span class="hotel-step" id="hotel-step">01 / LA CIUDAD</span><strong id="hotel-caption-title">Tu próxima estadía, de cerca.</strong><p id="hotel-caption-description">Pasá el mouse sobre el hotel para acercarte.</p></div><div class="hotel-actions"><button type="button" id="hotel-primary">Conocer el hotel ↗</button><button type="button" class="hotel-icon-control" id="hotel-pause" aria-label="Pausar recorrido" aria-pressed="false" hidden>Ⅱ</button><button type="button" id="hotel-back" hidden>Volver al hotel ↗</button></div></div>
-            <div class="hotel-progress" aria-hidden="true"><span id="hotel-progress-fill"></span></div>
-          </div>
-          <div class="hotel-floor-picker" id="hotel-floor-picker" role="group" aria-label="Elegir un piso del hotel" hidden><span>Elegí tu piso</span></div>
-          <div class="hotel-room-picker" id="hotel-room-picker" role="group" aria-label="Elegir una habitación" hidden></div>
-          <div class="hotel-footnote"><span>Una visita para imaginar tu próxima estadía.</span><span>Hotel ilustrativo · Distintas ventanas, el mismo diseño de suite.</span></div>
-          <p class="sr-only" id="hotel-status" role="status" aria-live="polite"></p>
         </section>
 
         <section class="world-section" id="mundo" aria-labelledby="world-title">
