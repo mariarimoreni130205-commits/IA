@@ -5,17 +5,19 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#173b34">
   <meta name="description" content="Contanos qué viaje tenés en mente. Radar compara vuelos según tus preferencias y te ayuda a seguir las mejores oportunidades.">
-  <title>Radar de Vuelos — Menos buscar. Más descubrir.</title>
+  <title>Radar de Vuelos — Tu próximo viaje empieza acá.</title>
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;650;700;750;800&display=swap" rel="stylesheet">
-  <link rel="preload" as="image" href="assets/hero.webp" fetchpriority="high">
+  <link rel="preload" as="image" href="assets/hero/plane.webp" imagesrcset="assets/hero/plane-small.webp 1200w, assets/hero/plane.webp 2172w" imagesizes="(max-width: 700px) 125vw, 100vw" fetchpriority="high">
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="hero.css">
   <link rel="stylesheet" href="globe.css">
   <script src="airport-data.js" defer></script>
   <script src="engine.js" defer></script>
   <script src="app.js" defer></script>
+  <script type="module" src="hero.js"></script>
   <script type="module" src="globe.js"></script>
 </head>
 <body>
@@ -23,8 +25,8 @@
   <div class="page-shell">
     <header class="site-header">
       <a class="brand" href="#explorar" aria-label="Radar de Vuelos, inicio">
-        <svg class="brand-mark" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="21"/><path d="m13 23 23-11-11 24-3-11z"/></svg>
-        <span class="brand-type">radar<span>DE VUELOS</span></span>
+        <span class="brand-type">radar</span>
+        <svg class="brand-mark" viewBox="0 0 40 40" aria-hidden="true"><path d="M6 5a29 29 0 0 1 29 29M6 16a18 18 0 0 1 18 18"/><circle cx="8" cy="32" r="3.5"/></svg>
       </a>
       <nav class="main-nav" aria-label="Navegación principal">
         <a href="#explorar" data-nav="explorar" class="active" aria-current="page">Explorar</a>
@@ -39,17 +41,25 @@
 
     <main id="main">
       <div id="view-explorar" class="view">
-        <section class="hero" aria-labelledby="hero-title">
-          <img class="hero-image" src="assets/hero.webp" alt="Acantilados dorados y mar turquesa en la costa de Portugal" width="3072" height="1024" fetchpriority="high">
-          <div class="hero-shade"></div>
-          <div class="hero-content">
-            <p class="eyebrow">TU PRÓXIMO VIAJE, A TU MANERA</p>
-            <h1 id="hero-title">Menos buscar.<br>Más descubrir.</h1>
-            <p class="hero-subtitle">Contanos qué tenés en mente. Encontramos el vuelo para vos.</p>
-            <form id="search-form" class="search-composer">
-              <label for="query">¿Qué viaje te gustaría hacer?</label>
+        <section class="flight-hero" id="flight-hero" aria-labelledby="hero-title">
+          <div class="flight-hero-stage">
+            <div class="flight-hero-copy">
+              <h1 id="hero-title"><span>Tu próximo viaje</span><span>empieza acá.</span></h1>
+              <p>Contanos tu idea. Encontramos el vuelo.</p>
+            </div>
+            <div class="flight-hero-arrival" aria-hidden="true"><p>HAY UN DESTINO PARA CADA IDEA</p><span>El tuyo está<br>ahí afuera.</span></div>
+            <div class="flight-scene" aria-hidden="true">
+              <div class="flight-landscape"><img src="assets/hero/landscape.webp" srcset="assets/hero/landscape-small.webp 900w, assets/hero/landscape.webp 1536w" sizes="(max-width: 700px) 85vw, 60vw" alt="" width="1536" height="1024" fetchpriority="high"></div>
+              <div class="flight-aircraft-shadow"></div>
+              <div class="flight-aircraft"><img src="assets/hero/plane.webp" srcset="assets/hero/plane-small.webp 1200w, assets/hero/plane.webp 2172w" sizes="(max-width: 700px) 125vw, 100vw" alt="" width="2172" height="724" fetchpriority="high" draggable="false"></div>
+              <img class="flight-clouds" src="assets/hero/clouds.webp" alt="" width="2172" height="724" decoding="async" draggable="false">
+            </div>
+            <div class="flight-hero-bottom">
+            <form id="search-form" class="search-composer hero-search">
+              <label class="sr-only" for="query">¿A dónde te gustaría viajar?</label>
               <div class="composer-main">
-                <textarea id="query" rows="1" maxlength="1500" aria-describedby="search-error" placeholder="Por ejemplo: una semana de playa, hasta US$ 600…">Quiero ir a Europa en febrero, hasta US$ 1.200, por 14 días.</textarea>
+                <svg class="hero-search-icon icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="7"/><path d="m16 16 5 5"/></svg>
+                <textarea id="query" rows="1" maxlength="1500" aria-describedby="search-error" placeholder="¿A dónde te gustaría viajar?"></textarea>
                 <button type="submit" class="button primary" id="search-button"><span>Encontrar vuelos</span><span data-icon="arrow"></span></button>
               </div>
               <div class="composer-options">
@@ -60,6 +70,8 @@
               </div>
               <p id="search-error" class="field-error" role="alert" hidden></p>
             </form>
+            <button class="flight-scroll-cue" id="hero-explore" type="button"><span>Arrancá tu próximo viaje</span><span class="flight-scroll-caption">Deslizá para despegar <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16m-6-6 6 6 6-6"/></svg></span></button>
+            </div>
           </div>
         </section>
 

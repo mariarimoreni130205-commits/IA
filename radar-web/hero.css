@@ -1,0 +1,146 @@
+/* The approved render is composed of independent, real alpha layers.
+   All search controls remain native DOM above the decorative scene. */
+:root { --canvas: #f5f1e9; --ink: #093c32; --lime: #d4ed61; }
+body { overflow-x: clip; }
+.page-shell { max-width: 1680px; padding-inline: 38px; }
+.site-header { height: 104px; margin-bottom: 0; border-bottom: 0; padding-inline: 6px; justify-content: flex-start; gap: clamp(36px, 6vw, 110px); }
+.site-header .brand { gap: 0; align-items: flex-start; }
+.site-header .brand-type { font-size: 58px; letter-spacing: -.065em; }
+.site-header .brand-mark { width: 36px; height: 36px; margin: -13px 0 0 2px; stroke: var(--lime); stroke-width: 5; fill: none; }
+.site-header .brand-mark circle { fill: var(--lime); stroke: none; }
+.main-nav { gap: clamp(16px, 3vw, 58px); }
+.main-nav>a { padding: 10px 0; font-size: 17px; border-radius: 0; font-weight: 750; }
+.main-nav>a.active { background: transparent; box-shadow: none; }
+.main-nav>a:hover { background: transparent; color: #63813c; }
+.header-actions { margin-left: auto; gap: 12px; }
+.header-actions .avatar { width: 36px; height: 36px; font-size: 16px; }
+
+.flight-hero { --stage-height: clamp(650px, calc(100svh - 116px), 850px); position: relative; isolation: isolate; }
+.flight-hero-stage { position: relative; height: var(--stage-height); }
+.flight-hero-copy { position: absolute; top: 22px; left: 6px; width: 60%; z-index: 3; pointer-events: none; }
+.flight-hero-copy h1 { font-size: clamp(56px, 5.45vw, 88px); font-weight: 800; letter-spacing: -.065em; line-height: 1.04; text-wrap: initial; }
+.flight-hero-copy h1 span { display: block; }
+.flight-hero-copy p { margin-top: 18px; font-size: clamp(18px, 1.7vw, 27px); line-height: 1.4; letter-spacing: -.035em; }
+.flight-scene { position: absolute; inset: 0 0 132px; pointer-events: none; perspective: 1500px; overflow: clip; overflow-clip-margin: 24px; }
+.flight-landscape { position: absolute; right: 0; top: 10px; width: 57%; height: 91%; border-radius: 44px 48px 30px 38px; overflow: hidden; transform: perspective(1500px) rotateY(-7deg) rotateZ(-2deg); transform-origin: 80% 55%; background: #619aab; }
+.flight-landscape img { width: 100%; height: 100%; object-fit: cover; object-position: 60% center; }
+.flight-landscape::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, #062f39d9, #062f3940 60%, transparent); opacity: var(--arrival, 0); }
+.flight-hero-arrival { position: absolute; left: 6%; top: 16%; z-index: 3; color: #fffdf5; opacity: 0; pointer-events: none; }
+.flight-hero-arrival p { font-size: 11px; font-weight: 700; letter-spacing: .18em; margin-bottom: 20px; }
+.flight-hero-arrival>span { font-size: clamp(50px, 5.8vw, 88px); line-height: 1.04; letter-spacing: -.055em; font-weight: 800; }
+.flight-aircraft { position: absolute; width: 103%; left: -1.5%; top: 19%; transform-origin: 34% 65%; }
+.flight-aircraft img { width: 100%; max-width: none; height: auto; }
+.flight-aircraft-shadow { position: absolute; left: 3%; top: 77%; width: 72%; height: 14%; background: radial-gradient(ellipse, #343d315c 0%, #343d3133 35%, transparent 71%); filter: blur(13px); transform: rotate(8deg); }
+.flight-clouds { position: absolute; left: -15%; bottom: -14%; width: 130%; height: auto; max-width: none; opacity: 0; transform: translateY(35%) scale(1.1); }
+.flight-hero-bottom { position: absolute; bottom: 12px; left: 6px; right: 6px; z-index: 5; display: flex; align-items: flex-start; gap: 36px; }
+.hero-search { margin: 0; padding: 0; background: none; box-shadow: none; width: min(960px, 76%); flex-shrink: 0; }
+.hero-search .composer-main { display: flex; align-items: center; gap: 16px; min-height: 68px; padding: 5px 5px 5px 22px; border: 1px solid #d7d1c5; border-radius: 38px; background: #fffdf8; box-shadow: 0 6px 15px #393a2810; }
+.hero-search .hero-search-icon { width: 26px; height: 26px; }
+.hero-search .composer-main textarea { font-size: 17px; line-height: 1.5; min-height: 32px; padding-block: 3px; }
+.hero-search textarea::placeholder { color: var(--ink); opacity: .9; }
+.hero-search .composer-main .button { min-height: 56px; padding: 15px 28px; border-radius: 32px; font-size: 15px; background: var(--lime); color: var(--ink); }
+.hero-search .composer-main .button:hover { background: #c5e34f; box-shadow: 0 4px 18px #8b9c3130; }
+.hero-search .composer-main .button .icon { display: none; }
+.hero-search .composer-options { padding: 6px 14px 0; gap: 22px; }
+.hero-search .select-control select { font-size: 12px; }
+.hero-search .select-control .icon { width: 16px; height: 16px; }
+.hero-search .voice-button { position: static; width: 40px; height: 40px; margin-left: auto; }
+.hero-search .field-error { padding-left: 20px; }
+.flight-scroll-cue { margin-left: auto; padding: 19px 0 0; text-align: right; white-space: nowrap; font-size: 16px; font-weight: 650; }
+.flight-scroll-cue:hover { color: #63813c; }
+.flight-scroll-caption { display: flex; gap: 10px; justify-content: flex-end; align-items: center; margin-top: 13px; font-size: 11px; font-weight: 500; color: #71776a; }
+.flight-scroll-caption svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.5; }
+.recommendations { scroll-margin-top: 24px; }
+.clarifications { scroll-margin-top: 24px; }
+
+@media (min-width: 901px) and (prefers-reduced-motion: no-preference) {
+  .flight-hero[data-motion="on"] { height: calc(var(--stage-height) + min(55svh, 480px)); }
+  .flight-hero[data-motion="on"] .flight-hero-stage { position: sticky; top: 12px; }
+  .flight-hero[data-visible="true"] .flight-aircraft,
+  .flight-hero[data-visible="true"] .flight-landscape,
+  .flight-hero[data-visible="true"] .flight-clouds { will-change: transform, opacity; }
+}
+@media (max-width: 1200px) {
+  .page-shell { padding-inline: 25px; }
+  .site-header { gap: 42px; height: 92px; }
+  .site-header .brand-type { font-size: 49px; }
+  .main-nav { gap: 26px; }
+  .main-nav>a { font-size: 15px; }
+  .flight-hero { --stage-height: clamp(610px, calc(100svh - 104px), 800px); }
+  .flight-hero-copy { top: 24px; }
+  .flight-hero-copy h1 { font-size: 5.65vw; }
+  .flight-hero-copy p { font-size: 20px; max-width: 510px; }
+  .flight-scene { bottom: 148px; }
+  .flight-aircraft { top: 27%; }
+  .hero-search { width: 77%; }
+  .hero-search .composer-main .button { padding-inline: 21px; font-size: 13px; }
+  .hero-search .composer-main textarea { font-size: 15px; }
+  .flight-scroll-cue { font-size: 12px; }
+  .flight-scroll-caption { font-size: 10px; }
+  .flight-hero-bottom { gap: 20px; }
+}
+@media (max-width: 900px) {
+  .site-header { gap: 28px; }
+  .main-nav { gap: 18px; }
+  .main-nav>a { font-size: 13px; }
+  .flight-hero-stage { height: auto; display: flex; flex-direction: column; padding-bottom: 18px; }
+  .flight-hero-copy { position: relative; top: auto; left: 0; width: 100%; padding: 20px 0 12px; }
+  .flight-hero-copy h1 { font-size: clamp(46px, 7.8vw, 70px); }
+  .flight-hero-copy p { font-size: 20px; margin-top: 16px; }
+  .flight-scene { position: relative; inset: auto; height: clamp(260px, 49vw, 440px); width: 100%; }
+  .flight-landscape { width: 75%; height: 90%; right: 0; top: 15px; border-radius: 28px; }
+  .flight-aircraft { top: 23%; width: 114%; left: -7%; }
+  .flight-aircraft-shadow { top: 78%; }
+  .flight-hero-bottom { position: relative; inset: auto; display: block; margin-top: 12px; }
+  .hero-search { width: 100%; }
+  .hero-search .composer-main textarea { font-size: 17px; }
+  .hero-search .composer-main .button { font-size: 14px; }
+  .flight-scroll-cue { display: none; }
+  .flight-clouds { display: none; }
+  .flight-hero-arrival { display: none; }
+}
+@media (max-width: 650px) {
+  .page-shell { padding-inline: 20px; }
+  .site-header { height: auto; min-height: 117px; display: grid; grid-template-columns: 1fr auto; gap: 16px; padding: 25px 0 0; }
+  .site-header .brand-type { font-size: 43px; }
+  .site-header .brand-mark { width: 28px; height: 28px; margin-top: -10px; }
+  .site-header .header-actions { gap: 8px; }
+  .main-nav { width: 100%; justify-content: space-between; gap: 10px; padding-bottom: 11px; border-bottom: 1px solid #d9d9cc; }
+  .main-nav>a { padding: 5px 0; font-size: 12px; }
+  .main-nav>a.active { text-decoration: underline; text-decoration-color: #a0ba43; text-underline-offset: 8px; }
+  .flight-hero-copy { padding-top: 23px; padding-bottom: 10px; }
+  .flight-hero-copy h1 { font-size: clamp(36px, 9.4vw, 59px); line-height: 1.07; letter-spacing: -.055em; }
+  .flight-hero-copy p { font-size: 16px; line-height: 1.5; max-width: 290px; margin-top: 13px; }
+  .flight-scene { height: clamp(222px, 61vw, 355px); margin-top: 5px; overflow-clip-margin: 18px; }
+  .flight-landscape { width: 78%; height: 87%; top: 7px; border-radius: 24px; }
+  .flight-aircraft { width: 126%; left: -13%; top: 23%; }
+  .flight-aircraft-shadow { width: 85%; height: 15%; top: 78%; left: -5%; filter: blur(9px); }
+  .flight-hero-bottom { margin-top: 4px; }
+  .hero-search { position: relative; padding: 0; border-radius: 24px; }
+  .hero-search .composer-main { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 9px 12px; padding: 13px 13px 10px; border-radius: 24px; }
+  .hero-search .hero-search-icon { width: 22px; height: 22px; }
+  .hero-search .composer-main textarea { min-height: 32px; font-size: 16px; padding-block: 4px; line-height: 1.5; }
+  .hero-search .composer-main .button { grid-column: 1 / -1; width: 100%; min-height: 47px; padding: 13px 18px; margin: 0; justify-content: center; border-radius: 15px; font-size: 14px; }
+  .hero-search .composer-options { padding: 7px 3px 0; gap: 10px; flex-wrap: nowrap; }
+  .hero-search .select-control { gap: 5px; min-width: 0; }
+  .hero-search .select-control select { font-size: 10px; padding-right: 17px; }
+  .hero-search .select-control .icon { width: 14px; height: 14px; }
+  .hero-search .option-divider { height: 17px; }
+  .hero-search .voice-button { width: 30px; min-width: 30px; height: 44px; padding: 3px; }
+  .hero-search .voice-button .icon { width: 19px; }
+  .hero-search .field-error { padding: 5px 3px; }
+}
+@media (max-width: 360px) {
+  .page-shell { padding-inline: 16px; }
+  .flight-scene { overflow-clip-margin: 14px; }
+  .flight-hero-copy h1 { font-size: 9.35vw; }
+  .flight-hero-copy p { font-size: 15px; }
+  .hero-search .composer-options { gap: 6px; }
+  .hero-search .select-control select { font-size: 9px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .flight-aircraft, .flight-landscape, .flight-hero-copy, .flight-aircraft-shadow { transform: none !important; opacity: 1 !important; }
+  .flight-clouds { display: none; }
+  .flight-hero-arrival { display: none; }
+  .flight-scroll-caption { display: none; }
+}

@@ -76,6 +76,12 @@ npm test
 
 Se verificaron en navegador: búsqueda, aclaraciones, ajustes de preferencias, detalle del vuelo, guardado, creación y lectura de alertas, persistencia tras recargar, estados vacíos y vista móvil. La API real se verificó con respuestas simuladas; no se utilizó una credencial de Travelpayouts.
 
+## Hero de avión
+
+La cabecera implementa el concepto aprobado con tres renders independientes en `assets/hero/`: paisaje, avión transparente y nubes. `hero.css` define la composición adaptable y `hero.js` sincroniza las capas con el scroll: el avión avanza fuera del encuadre mientras el paisaje retrocede y las nubes atraviesan la escena. Es una composición de renders con profundidad, no un modelo 3D navegable; el globo de la sección inferior sí usa Three.js.
+
+En escritorio la escena acompaña un tramo corto de scroll. En celular se utiliza un recorrido normal con movimiento reducido. El buscador sigue siendo HTML accesible y lleva a las aclaraciones o resultados al enviar. Se respeta `prefers-reduced-motion`, no se intercepta la rueda ni el gesto táctil, y no hay bucle de animación permanente: se dibuja únicamente al desplazarse o mover el puntero mientras el hero está visible.
+
 ## Mundo 3D
 
 `globe.js` carga Three.js y la escena al acercarse la sección al área visible. `globe-scene.js` dibuja una Tierra texturada, una capa de nubes, una atmósfera suave y aviones modelados con geometría procedural. Los vuelos siguen arcos geográficos entre coordenadas de aeropuertos; todos son simulados, sin conexión a datos de tráfico aéreo.
