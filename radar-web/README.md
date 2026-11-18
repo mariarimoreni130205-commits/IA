@@ -78,9 +78,9 @@ Se verificaron en navegador: búsqueda, aclaraciones, ajustes de preferencias, d
 
 ## Hero de avión
 
-La cabecera implementa el concepto aprobado con tres renders independientes en `assets/hero/`: paisaje, avión transparente y nubes. `hero.css` define la composición adaptable y `hero.js` sincroniza las capas con el scroll: el avión avanza fuera del encuadre mientras el paisaje retrocede y las nubes atraviesan la escena. Es una composición de renders con profundidad, no un modelo 3D navegable; el globo de la sección inferior sí usa Three.js.
+La cabecera implementa el concepto aprobado con tres renders independientes en `assets/hero/`: paisaje, avión transparente y nubes. El paisaje y el texto quedan fijos dentro de la sección; únicamente el avión flota suavemente y una capa de nubes se desplaza dentro del encuadre del paisaje. Es una composición de renders con profundidad, no un modelo 3D navegable; el globo de la sección inferior sí usa Three.js.
 
-En escritorio la escena acompaña un tramo corto de scroll. En celular se utiliza un recorrido normal con movimiento reducido. El buscador sigue siendo HTML accesible y lleva a las aclaraciones o resultados al enviar. Se respeta `prefers-reduced-motion`, no se intercepta la rueda ni el gesto táctil, y no hay bucle de animación permanente: se dibuja únicamente al desplazarse o mover el puntero mientras el hero está visible.
+El desplazamiento de la página es normal: no hay escenas fijadas ni transiciones asociadas al scroll. Las animaciones CSS se pausan cuando el hero queda fuera de pantalla, al ocultar la pestaña o con el control de pausa; se respeta `prefers-reduced-motion`. El buscador sigue siendo HTML accesible y lleva a las aclaraciones o resultados al enviar. `navigation.js` convierte la navegación móvil en un menú hamburguesa que se cierra al elegir una sección, tocar afuera o presionar Escape.
 
 ## Mundo 3D
 

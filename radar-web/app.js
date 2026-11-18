@@ -360,7 +360,7 @@ document.addEventListener('submit',async event=>{
   if(form.id==='search-form'){
     const text=$('query').value.trim();if(!text){$('search-error').textContent='Contanos primero qué viaje te gustaría hacer.';$('search-error').hidden=false;$('query').focus();return;}
     await executeSearch(parseSearch(text),text,{ask:true});
-    // The cinematic hero has a scroll runway; bring the answer into view.
+    // Bring the search answer or clarification directly into view.
     const target=$('clarifications').hidden?$('recommendations'):$('clarifications');
     target.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});
   }else if(form.id==='chat-form')await sendChat($('chat-input').value);

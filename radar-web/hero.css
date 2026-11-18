@@ -3,7 +3,7 @@
 :root { --canvas: #f5f1e9; --ink: #093c32; --lime: #d4ed61; }
 body { overflow-x: clip; }
 .page-shell { max-width: 1680px; padding-inline: 38px; }
-.site-header { height: 104px; margin-bottom: 0; border-bottom: 0; padding-inline: 6px; justify-content: flex-start; gap: clamp(36px, 6vw, 110px); }
+.site-header { position: relative; z-index: 10; height: 104px; margin-bottom: 0; border-bottom: 0; padding-inline: 6px; justify-content: flex-start; gap: clamp(36px, 6vw, 110px); }
 .site-header .brand { gap: 0; align-items: flex-start; }
 .site-header .brand-type { font-size: 58px; letter-spacing: -.065em; }
 .site-header .brand-mark { width: 36px; height: 36px; margin: -13px 0 0 2px; stroke: var(--lime); stroke-width: 5; fill: none; }
@@ -14,6 +14,11 @@ body { overflow-x: clip; }
 .main-nav>a:hover { background: transparent; color: #63813c; }
 .header-actions { margin-left: auto; gap: 12px; }
 .header-actions .avatar { width: 36px; height: 36px; font-size: 16px; }
+.nav-toggle { width: 42px; height: 42px; padding: 10px; border-radius: 10px; }
+.nav-toggle:hover { background: #e8e9db; }
+.nav-toggle svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; }
+.nav-toggle-close, .nav-toggle[aria-expanded="true"] .nav-toggle-bars { display: none; }
+.nav-toggle[aria-expanded="true"] .nav-toggle-close { display: block; }
 
 .flight-hero { --stage-height: clamp(650px, calc(100svh - 116px), 850px); position: relative; isolation: isolate; }
 .flight-hero-stage { position: relative; height: var(--stage-height); }
@@ -24,14 +29,25 @@ body { overflow-x: clip; }
 .flight-scene { position: absolute; inset: 0 0 132px; pointer-events: none; perspective: 1500px; overflow: clip; overflow-clip-margin: 24px; }
 .flight-landscape { position: absolute; right: 0; top: 10px; width: 57%; height: 91%; border-radius: 44px 48px 30px 38px; overflow: hidden; transform: perspective(1500px) rotateY(-7deg) rotateZ(-2deg); transform-origin: 80% 55%; background: #619aab; }
 .flight-landscape img { width: 100%; height: 100%; object-fit: cover; object-position: 60% center; }
-.flight-landscape::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, #062f39d9, #062f3940 60%, transparent); opacity: var(--arrival, 0); }
-.flight-hero-arrival { position: absolute; left: 6%; top: 16%; z-index: 3; color: #fffdf5; opacity: 0; pointer-events: none; }
-.flight-hero-arrival p { font-size: 11px; font-weight: 700; letter-spacing: .18em; margin-bottom: 20px; }
-.flight-hero-arrival>span { font-size: clamp(50px, 5.8vw, 88px); line-height: 1.04; letter-spacing: -.055em; font-weight: 800; }
+.flight-landscape .flight-landscape-clouds { position: absolute; left: -25%; bottom: -12%; width: 140%; height: auto; max-width: none; opacity: .52; animation: landscape-cloud-drift 28s ease-in-out infinite; animation-play-state: paused; }
 .flight-aircraft { position: absolute; width: 103%; left: -1.5%; top: 19%; transform-origin: 34% 65%; }
-.flight-aircraft img { width: 100%; max-width: none; height: auto; }
+.flight-aircraft img { width: 100%; max-width: none; height: auto; transform-origin: 45% 60%; animation: aircraft-hover 7s ease-in-out infinite; animation-play-state: paused; }
 .flight-aircraft-shadow { position: absolute; left: 3%; top: 77%; width: 72%; height: 14%; background: radial-gradient(ellipse, #343d315c 0%, #343d3133 35%, transparent 71%); filter: blur(13px); transform: rotate(8deg); }
-.flight-clouds { position: absolute; left: -15%; bottom: -14%; width: 130%; height: auto; max-width: none; opacity: 0; transform: translateY(35%) scale(1.1); }
+.flight-hero[data-motion="on"] .flight-aircraft img,
+.flight-hero[data-motion="on"] .flight-landscape-clouds { animation-play-state: running; will-change: transform; }
+.flight-motion-toggle { position: absolute; right: 12px; bottom: 9%; z-index: 2; width: 38px; height: 38px; border-radius: 50%; background: #fffdf3eb; box-shadow: 0 2px 10px #1c3e2f15; pointer-events: auto; display: grid; place-items: center; }
+.flight-motion-toggle:hover { background: var(--lime); }
+.flight-motion-toggle svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.motion-play, .flight-motion-toggle[aria-pressed="true"] .motion-pause { display: none; }
+.flight-motion-toggle[aria-pressed="true"] .motion-play { display: block; }
+@keyframes aircraft-hover {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  50% { transform: translate3d(-5px, var(--aircraft-lift, -12px), 0) rotate(-.4deg); }
+}
+@keyframes landscape-cloud-drift {
+  0%, 100% { transform: translate3d(-3%, 3%, 0); }
+  50% { transform: translate3d(8%, -3%, 0); }
+}
 .flight-hero-bottom { position: absolute; bottom: 12px; left: 6px; right: 6px; z-index: 5; display: flex; align-items: flex-start; gap: 36px; }
 .hero-search { margin: 0; padding: 0; background: none; box-shadow: none; width: min(960px, 76%); flex-shrink: 0; }
 .hero-search .composer-main { display: flex; align-items: center; gap: 16px; min-height: 68px; padding: 5px 5px 5px 22px; border: 1px solid #d7d1c5; border-radius: 38px; background: #fffdf8; box-shadow: 0 6px 15px #393a2810; }
@@ -53,13 +69,6 @@ body { overflow-x: clip; }
 .recommendations { scroll-margin-top: 24px; }
 .clarifications { scroll-margin-top: 24px; }
 
-@media (min-width: 901px) and (prefers-reduced-motion: no-preference) {
-  .flight-hero[data-motion="on"] { height: calc(var(--stage-height) + min(55svh, 480px)); }
-  .flight-hero[data-motion="on"] .flight-hero-stage { position: sticky; top: 12px; }
-  .flight-hero[data-visible="true"] .flight-aircraft,
-  .flight-hero[data-visible="true"] .flight-landscape,
-  .flight-hero[data-visible="true"] .flight-clouds { will-change: transform, opacity; }
-}
 @media (max-width: 1200px) {
   .page-shell { padding-inline: 25px; }
   .site-header { gap: 42px; height: 92px; }
@@ -96,12 +105,18 @@ body { overflow-x: clip; }
   .hero-search .composer-main textarea { font-size: 17px; }
   .hero-search .composer-main .button { font-size: 14px; }
   .flight-scroll-cue { display: none; }
-  .flight-clouds { display: none; }
-  .flight-hero-arrival { display: none; }
+  .flight-aircraft { --aircraft-lift: -7px; }
+  .flight-motion-toggle { width: 40px; height: 40px; right: 9px; bottom: 10%; }
 }
 @media (max-width: 650px) {
   .page-shell { padding-inline: 20px; }
   .site-header { height: auto; min-height: 117px; display: grid; grid-template-columns: 1fr auto; gap: 16px; padding: 25px 0 0; }
+  .site-header[data-mobile-nav="true"] { min-height: 90px; grid-template-columns: 1fr auto auto; gap: 10px; padding: 22px 0 16px; }
+  .site-header[data-mobile-nav="true"] .nav-toggle { grid-column: 3; grid-row: 1; }
+  .site-header[data-mobile-nav="true"] .header-actions { grid-column: 2; grid-row: 1; }
+  .site-header[data-mobile-nav="true"] .main-nav { position: absolute; top: calc(100% + 2px); left: 0; right: 0; width: auto; display: flex; flex-direction: column; align-items: stretch; gap: 3px; padding: 12px; background: #fffdf8; border: 1px solid #dfded2; border-radius: 16px; box-shadow: 0 18px 36px #193b2e1a; }
+  .site-header[data-mobile-nav="true"] .main-nav>a { padding: 15px 17px; border-radius: 9px; font-size: 15px; }
+  .site-header[data-mobile-nav="true"] .main-nav>a.active { text-decoration: none; background: #edf1df; }
   .site-header .brand-type { font-size: 43px; }
   .site-header .brand-mark { width: 28px; height: 28px; margin-top: -10px; }
   .site-header .header-actions { gap: 8px; }
@@ -139,8 +154,5 @@ body { overflow-x: clip; }
   .hero-search .select-control select { font-size: 9px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .flight-aircraft, .flight-landscape, .flight-hero-copy, .flight-aircraft-shadow { transform: none !important; opacity: 1 !important; }
-  .flight-clouds { display: none; }
-  .flight-hero-arrival { display: none; }
-  .flight-scroll-caption { display: none; }
+  .flight-aircraft img, .flight-landscape-clouds { animation: none !important; }
 }
