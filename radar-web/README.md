@@ -82,29 +82,41 @@ La cabecera implementa el concepto aprobado con tres renders independientes en `
 
 El desplazamiento de la página es normal: no hay escenas fijadas ni transiciones asociadas al scroll. Las animaciones CSS se pausan cuando el hero queda fuera de pantalla, al ocultar la pestaña o con el control de pausa; se respeta `prefers-reduced-motion`. El buscador sigue siendo HTML accesible y lleva a las aclaraciones o resultados al enviar. `navigation.js` convierte la navegación móvil en un menú hamburguesa que se cierra al elegir una sección, tocar afuera o presionar Escape.
 
-## Visita de Torre Urbana (prototipo visual)
+## Visita de Torre Urbana
 
-La sección del hotel usa un render local de Blender y controles HTML/SVG, sin una
-suscripción ni una API de video. El hotel, la suite y la ciudad son ficticios.
-Todos los pisos llevan al mismo recorrido de la suite modelo.
+La experiencia combina una fachada fotorealista generada y una toma de video de
+la suite creada en Google Flow. Es una composición interactiva de imagen y video,
+no un edificio 3D navegable. El hotel, las habitaciones y la ciudad son ficticios.
+Hay nueve pisos y tres ventanas por piso: cada habitación tiene su propia entrada,
+aunque todas reutilizan el mismo diseño y recorrido interior.
 
-`hotel.js` carga los medios al acercarse la sección a la pantalla. En escritorio,
-pasar por el contorno del hotel reproduce el acercamiento; también hay un botón
-para teclado y celular. El video se detiene para elegir uno de diez pisos y luego
-continúa por la ventana hasta el interior. Incluye pausa y regreso. La segunda
-mitad del MP4 contiene los cuadros originales en orden inverso: volver cambia al
-cuadro equivalente antes de continuar, sin un cambio de escena. La reproducción
-se pausa al ocultar la pestaña o alejarse de la sección. Movimiento reducido evita
-el inicio automático por hover; el recorrido queda disponible mediante un botón.
+`hotel-motion.js` define las 27 ventanas sobre la fotografía y calcula las
+transformaciones de perspectiva. El acercamiento apunta a la ventana elegida,
+encuadra allí el primer fotograma del interior y lo lleva hasta ocupar la pantalla.
+Al llegar, comienza la toma continua de la suite. La vuelta reproduce los mismos
+fotogramas en orden inverso y deshace el acercamiento hacia la ventana seleccionada.
+No se encadenan clips independientes ni se busca una ventana fija para todos.
+La perspectiva es una ilusión 2.5D: no existe libertad para caminar por la escena.
 
-Los polígonos de los pisos salen de la proyección de la cámara de Blender y están
-en `assets/hotel/tour.json`. `hotel-playback.js` contiene las conversiones de tiempo
-para la vuelta. `server.mjs` admite peticiones HTTP Range para desplazarse dentro
-del MP4 local; `media-range.mjs` valida los rangos. Vercel sirve estos medios como
-archivos estáticos. Los créditos están en `assets/hotel/CREDITS.md`.
+`hotel.js` controla selección, pausa, carga y regreso. El movimiento del exterior
+se actualiza con `requestAnimationFrame` y tiempo transcurrido; no tiene un bucle
+activo cuando está detenido. Se pausa al ocultar la pestaña o salir de pantalla.
+Los controles de piso/habitación funcionan con teclado y ofrecen blancos táctiles
+de al menos 44 px. Movimiento reducido evita el hover automático y acorta el zoom.
 
-Este render es una reconstrucción 3D propia, no una reproducción exacta de la
-fotografía conceptual generada. La calidad visual está en evaluación.
+El recorrido original de Flow tiene 358 fotogramas a 24 FPS (aproximadamente 15 s),
+generados a 720p y reescalados en Flow a 1080p. No son 60 FPS nativos. El MP4 web
+contiene ida y vuelta; la versión móvil tiene 960 × 540 y pesa aproximadamente 9 MB.
+El acercamiento del navegador sigue la frecuencia de pantalla y el rendimiento
+del equipo. Los medios se precargan al acercarse al hotel, sin una llamada a Flow
+por visitante. No se necesita una cuenta de Flow para usar la página.
+
+`hotel-playback.js` convierte los tiempos entre ida y vuelta; `tour.json` registra
+los límites exactos por fotograma. `server.mjs` admite HTTP Range para adelantar o
+retroceder dentro del MP4. Vercel sirve los medios como archivos estáticos.
+Las pruebas comprueban la proyección de cada ventana, la coincidencia del portal
+con el video en escritorio/celular y los tiempos del regreso. Créditos y origen
+de los recursos en `assets/hotel/CREDITS.md`.
 
 ## Mundo 3D
 

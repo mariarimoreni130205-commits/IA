@@ -1,14 +1,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {mirrorTime,forwardTime,progress} from '../hotel-playback.js';
+import {readFileSync} from 'node:fs';
 import {parseByteRange} from '../media-range.mjs';
 
 test('returning switches to the matching source frame, including mid-tour',()=>{
- const end=697/24;
- for(let frame=0;frame<697;frame+=13){
-  const t=frame/24,reverse=mirrorTime(t,end);
-  assert.ok(Math.abs(mirrorTime(reverse,end)-t)<1e-9);
-  assert.ok(Math.abs(forwardTime(reverse,end)-t)<1e-9);
+ const {forwardEnd:end,fps,totalEnd}=JSON.parse(readFileSync(new URL('../assets/hotel/tour.json',import.meta.url),'utf8'));
+ assert.ok(Math.abs(mirrorTime(0,end,fps)-totalEnd)<1e-9);
+ for(let frame=0;frame<end*fps;frame+=13){
+  const t=frame/fps,reverse=mirrorTime(t,end,fps);
+  assert.ok(Math.abs(mirrorTime(reverse,end,fps)-t)<1e-9);
+  assert.ok(Math.abs(forwardTime(reverse,end,fps)-t)<1e-9);
  }
 });
 test('tour progress stays bounded across approach, room and return',()=>{

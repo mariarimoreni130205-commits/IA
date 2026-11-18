@@ -1,21 +1,21 @@
-# Torre Urbana
+# Torre Urbana — versión fotográfica
 
-Hotel y habitación ficticios, modelados para Radar con Blender 4.5 LTS.
-La visita es ilustrativa: no representa un establecimiento disponible para reservar.
-Todos los pisos abren el mismo recorrido de una suite modelo.
+Hotel, ciudad y suite ficticios para Radar. La visita es ilustrativa; no representa
+un alojamiento disponible para reservar.
 
-El recorrido usa una única escena y una cámara continua, renderizada localmente
-con Cycles. El navegador reproduce el video y superpone áreas de selección.
-La segunda mitad del archivo contiene los mismos cuadros en orden inverso para
-regresar sin un cambio de escena. No usa Runway ni una API de generación de video.
+- Fachada y referencia interior: generadas con la herramienta integrada de imágenes
+  de OpenAI el 18 de noviembre de 2026, tomando como referencia el concepto aprobado
+  `01-torre-urbana.png`. No se usaron fotografías de un hotel real.
+- Video interior: Google Flow, Omni 1.2 Flash, Fotogramas, imagen inicial de la suite,
+  16:9, 15 s, 720p, una variante. Reescalado a 1080p desde la interfaz de Flow.
+- Proyecto editable: https://flow.google.com/project/3816bc3b-7332-4e39-90cc-581096fad4ba
+  (requiere la cuenta propietaria).
+- Archivo descargado: 1920 × 1080, 358 fotogramas, 24 FPS. La web elimina audio,
+  comprime el video y añade los cuadros invertidos para el regreso.
+- `suite-poster.webp` sale del primer fotograma del MP4 final, para coincidir con
+  el comienzo del recorrido. `exterior-photo.webp` es la fachada generada.
+- Selección de ventanas y zoom: HTML/SVG y transformaciones de perspectiva CSS.
+  No es una reconstrucción 3D, ni un video de cámaras de un hotel real.
 
-Recursos de Poly Haven, licencia [CC0](https://polyhaven.com/license):
-
-- [Potted Plant 01](https://polyhaven.com/a/potted_plant_01)
-- [Potted Plant 04](https://polyhaven.com/a/potted_plant_04)
-- [Tree Small 02](https://polyhaven.com/a/tree_small_02)
-- [Wood Table 001](https://polyhaven.com/a/wood_table_001)
-- [Fabric Pattern 07](https://polyhaven.com/a/fabric_pattern_07), mapas de tela recoloreados en el material.
-- [Hotel Rooftop Balcony](https://polyhaven.com/a/hotel_rooftop_balcony), iluminación y reflejos HDR.
-
-El cuadro decorativo reutiliza el paisaje generado para el hero de Radar.
+Los recursos del prototipo anterior de Blender no se distribuyen en esta versión;
+sus fuentes y créditos se conservan en el historial del proyecto.

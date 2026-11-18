@@ -1,20 +1,22 @@
-.hotel-section{margin:82px 0 55px;scroll-margin-top:30px}
+.hotel-section{margin:82px 0 55px;scroll-margin-top:30px;overflow-anchor:none}
 .hotel-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:32px;margin-bottom:27px;padding:0 5px}
 .hotel-heading .eyebrow{margin-bottom:10px;color:#62716a;font-size:10px}
 .hotel-heading h2{font-size:clamp(34px,4vw,57px);letter-spacing:-.055em}
 .hotel-heading>p{max-width:340px;font-size:14px;line-height:1.7;color:#626b63}
 .hotel-stage{position:relative;isolation:isolate;aspect-ratio:16/9;border-radius:24px;overflow:hidden;background:#d7cdbc;color:#fff;box-shadow:0 18px 50px #19372a14}
-.hotel-stage>video,.hotel-stage>.hotel-poster,.hotel-stage>.hotel-hold,.hotel-hotspots{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.hotel-stage>video{z-index:1}
-.hotel-poster{z-index:2;pointer-events:none}
-.hotel-hold{z-index:3;pointer-events:none}
-.hotel-hotspots{z-index:4;pointer-events:none;overflow:hidden}
-.hotel-hotspots polygon{pointer-events:auto;fill:#d4ed6105;stroke:#d4ed61;stroke-width:2;vector-effect:non-scaling-stroke;cursor:pointer;transition:fill .2s,stroke-opacity .2s}
-.hotel-hotspots .hotel-floor-hit{fill:transparent;stroke-opacity:0;stroke-width:1.5}
-.hotel-hotspots .hotel-floor-hit:hover,.hotel-hotspots .hotel-floor-hit:focus,.hotel-hotspots .hotel-floor-hit.is-active{fill:#d4ed6140;stroke-opacity:1;outline:none}
-.hotel-hotspots text{fill:#103d30;font-family:Manrope,Arial,sans-serif;font-size:15px;font-weight:750;pointer-events:none}
-.hotel-hotspots .hotel-floor-label{fill:#f9f4e9;stroke:#ffffff80;stroke-width:1;pointer-events:none}
-.hotel-stage::after{content:'';position:absolute;inset:0;z-index:3;pointer-events:none;background:linear-gradient(180deg,#0e1c222b,transparent 24%,transparent 58%,#12281c9c)}
+.hotel-world{position:absolute;top:0;left:0;width:1672px;height:941px;transform-origin:0 0}
+.hotel-exterior,.hotel-hotspots{position:absolute;inset:0;width:1672px;height:941px}
+.hotel-exterior{max-width:none;pointer-events:none}
+.hotel-portal{position:absolute;left:0;top:0;width:1672px;transform-origin:0 0;pointer-events:none;opacity:0;overflow:hidden}
+.hotel-portal img{width:100%;height:100%;object-fit:cover;display:block;max-width:none}
+.hotel-stage>video,.hotel-stage>.hotel-hold{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.hotel-stage>video{z-index:1}.hotel-hold{z-index:2;pointer-events:none}
+.hotel-hotspots{pointer-events:none;overflow:visible}
+.hotel-hotspots polygon{pointer-events:auto;fill:#d4ed6105;stroke:#d4ed61;stroke-width:1.5;vector-effect:non-scaling-stroke;cursor:pointer;transition:fill .2s,stroke-opacity .2s}
+.hotel-hotspots .hotel-window{fill:transparent;stroke-opacity:.1}
+.hotel-hotspots .hotel-window.is-active{fill:#d4ed611c;stroke-opacity:.7}
+.hotel-hotspots .hotel-window:hover,.hotel-hotspots .hotel-window:focus,.hotel-hotspots .hotel-window.is-selected{fill:#d4ed6145;stroke-opacity:1;outline:none;stroke-width:2}
+.hotel-stage::after{content:'';position:absolute;inset:0;z-index:3;pointer-events:none;background:linear-gradient(180deg,#0e1c222b,transparent 24%,transparent 70%,#12281c9c)}
 .hotel-topline{position:absolute;top:24px;left:26px;right:26px;z-index:5;display:flex;justify-content:space-between;align-items:center;pointer-events:none;gap:12px}
 .hotel-brand{font-size:26px;letter-spacing:-.045em;font-weight:800;line-height:1}
 .hotel-brand span{font-size:11px;font-weight:500;letter-spacing:.13em;display:block;margin-top:7px;text-transform:uppercase}
@@ -24,8 +26,9 @@
 .hotel-caption .hotel-step{font-size:9px;letter-spacing:.16em;text-transform:uppercase;display:block;margin-bottom:9px;opacity:.85}
 .hotel-caption strong{font-size:clamp(21px,2.5vw,32px);font-weight:650;letter-spacing:-.035em;line-height:1.2;display:block}
 .hotel-caption p{font-size:12px;line-height:1.5;margin-top:9px;opacity:.9}
-.hotel-stage[data-state=floors] .hotel-caption{max-width:240px}
-.hotel-stage[data-state=floors] .hotel-caption strong{font-size:26px}
+.hotel-stage:not([data-state=overview]):not([data-state=error]) .hotel-caption strong,.hotel-stage:not([data-state=overview]):not([data-state=error]) .hotel-caption p{display:none}
+.hotel-stage:not([data-state=overview]) .hotel-caption .hotel-step{margin:0;padding:9px 12px;border-radius:99px;background:#153a30bd;backdrop-filter:blur(8px)}
+.hotel-stage[aria-busy=true] .hotel-caption .hotel-step::after{content:' · Cargando…'}
 .hotel-actions{display:flex;gap:9px;align-items:center;flex-shrink:0;pointer-events:auto}
 .hotel-actions button{min-height:44px;padding:11px 17px;border-radius:99px;border:1px solid #ffffff80;background:#f5f1e9;color:#123e32;font-size:12px;font-weight:750;box-shadow:0 4px 16px #132c2720}
 .hotel-actions button:hover{background:#d4ed61;border-color:#d4ed61}
@@ -35,9 +38,14 @@
 .hotel-progress span{display:block;height:100%;width:0;background:#d4ed61}
 .hotel-floor-picker{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-top:16px}
 .hotel-floor-picker>span{font-size:12px;margin-right:10px;color:#647068}
-.hotel-floor-picker button{width:38px;min-height:38px;border:1px solid #c9cec0;border-radius:50%;font-size:12px;font-weight:700;background:#f5f1e9}
-.hotel-floor-picker button:hover,.hotel-floor-picker button.is-active{background:#d4ed61;border-color:#bbd453}
+.hotel-floor-picker button{width:44px;min-height:44px;border:1px solid #c9cec0;border-radius:50%;font-size:12px;font-weight:700;background:#f5f1e9}
+.hotel-floor-picker button:hover,.hotel-floor-picker button[aria-pressed=true]{background:#d4ed61;border-color:#bbd453}
 .hotel-floor-picker button:disabled{cursor:default;opacity:.45}
+.hotel-room-picker{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px}
+.hotel-room-picker>span{font-size:12px;color:#647068;margin-right:7px}
+.hotel-room-picker button{min-height:44px;padding:10px 18px;background:#123e32;color:#f5f1e9;border:1px solid #123e32;border-radius:99px;font-size:12px;font-weight:700}
+.hotel-room-picker button:hover{background:#d4ed61;color:#123e32;border-color:#bbd453}
+.hotel-floor-picker button:focus-visible,.hotel-room-picker button:focus-visible{outline:2px solid #123e32;outline-offset:3px}
 .hotel-footnote{display:flex;justify-content:space-between;gap:18px;margin-top:15px;padding:0 4px;color:#68756b;font-size:10px;line-height:1.6}
 .hotel-footnote span:first-child::before{content:'';display:inline-block;width:6px;height:6px;background:#a8be54;border-radius:50%;margin-right:7px}
 .hotel-stage[data-state=error] .hotel-hotspots{display:none}
@@ -45,8 +53,14 @@
  .hotel-section{margin:48px 0 32px}.hotel-heading{display:block;margin-bottom:20px}.hotel-heading h2{font-size:36px;max-width:340px}.hotel-heading>p{font-size:12px;max-width:310px;margin-top:12px}
  .hotel-stage{aspect-ratio:4/5;border-radius:18px}.hotel-topline{top:19px;left:18px;right:18px;align-items:flex-start}.hotel-brand{font-size:22px}.hotel-brand span{font-size:8px}.hotel-scene-name{font-size:9px;padding:6px 9px}
  .hotel-bottomline{bottom:22px;left:18px;right:18px;display:block}.hotel-caption{max-width:270px}.hotel-caption strong{font-size:25px}.hotel-caption p{font-size:11px;max-width:260px}.hotel-caption .hotel-step{font-size:8px;margin-bottom:7px}
- .hotel-actions{margin-top:18px;gap:8px}.hotel-actions button{font-size:11px;min-height:42px;padding:10px 15px}.hotel-actions .hotel-icon-control{width:42px}
+ .hotel-actions{margin-top:18px;gap:8px}.hotel-stage:not([data-state=overview]) .hotel-bottomline{display:flex;align-items:center;gap:8px;bottom:15px}.hotel-stage:not([data-state=overview]) .hotel-actions{margin-top:0}.hotel-stage:not([data-state=overview]) .hotel-caption .hotel-step{font-size:7px;letter-spacing:.08em;padding:8px}.hotel-room-picker>span{width:100%;font-size:11px}.hotel-actions button{font-size:11px;min-height:44px;padding:10px 15px}.hotel-actions .hotel-icon-control{width:44px;flex-shrink:0}
  .hotel-floor-picker{gap:8px;margin-top:13px}.hotel-floor-picker>span{width:100%;font-size:11px}.hotel-floor-picker button{width:44px;height:44px}
  .hotel-footnote{display:block;font-size:9px}.hotel-footnote span{display:block;margin-bottom:5px}.hotel-hotspots text,.hotel-hotspots .hotel-floor-label{display:none}
 }
 @media(prefers-reduced-motion:reduce){.hotel-hotspots polygon,.hotel-actions button{transition:none}}
+
+.hotel-section [hidden]{display:none!important}
+
+.hotel-stage:is([data-state=approaching],[data-state=entering],[data-state=returning]) .hotel-world{will-change:transform}
+
+.hotel-room-picker button:disabled{opacity:.45;cursor:default;background:#123e32;color:#f5f1e9}
