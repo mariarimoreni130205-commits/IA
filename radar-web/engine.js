@@ -82,7 +82,8 @@ async function obtenerVuelos(p,forzar){
     if(!r.ok)throw j;
     const vuelos=(j.vuelos||[]).map(desdeApi).filter(Boolean);
     if(!vuelos.length)throw {error:'sin_resultados'};
-    res={fuente:'real',vuelos};
+    // La API trae pocos vuelos: se suman simulados aparte, sin mezclarlos con los reales.
+    res={fuente:'real',vuelos,simulados:VUELOS_SIM};
   }catch(e){
     const c=e&&e.error;
     res={fuente:'sim',vuelos:VUELOS_SIM,motivo:

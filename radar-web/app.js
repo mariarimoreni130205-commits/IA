@@ -96,29 +96,42 @@ function flightCard(x,p=current?.p){
   const {f,score}=x;const saved=state.bookmarks.some(b=>b.f.id===f.id);
   const label=score>=95?'Ideal para vos':score>=85?'Gran opción':score>=70?'Buena opción':'Alternativa';
   return `<article class="flight-card" data-flight-id="${esc(f.id)}">
-    <div class="flight-visual">${photo(f)}<span class="match-badge ${score<70?'fair':''}">${score}/100 · ${label}</span><button class="bookmark-button ${saved?'saved':''}" data-action="bookmark" data-id="${esc(f.id)}" aria-label="${saved?'Quitar':'Guardar'} vuelo a ${esc(f.dest.c)}" aria-pressed="${saved}">${icon('bookmark')}</button></div>
+    <div class="flight-visual">${photo(f)}<span class="source-badge ${f.fuente==='real'?'real':'sim'}">${f.fuente==='real'?'Vuelo real':'Simulado'}</span><span class="match-badge ${score<70?'fair':''}">${score}/100 · ${label}</span><button class="bookmark-button ${saved?'saved':''}" data-action="bookmark" data-id="${esc(f.id)}" aria-label="${saved?'Quitar':'Guardar'} vuelo a ${esc(f.dest.c)}" aria-pressed="${saved}">${icon('bookmark')}</button></div>
     <div class="flight-body"><h3>${esc(f.dest.c)}, ${esc(COUNTRIES[f.dest.k]||'')}</h3><div class="flight-information"><div><div class="flight-route">${esc(f.origen)} → ${esc(f.dest.k)}</div><div class="flight-meta">${dateRange(f)}<br>${escTxt(f)} · ${esc(f.aero)}</div></div><div class="flight-price"><strong>${money(f.precio)}</strong><span>ida y vuelta</span></div></div><div class="flight-reason">${icon('sparkle')}<span>${esc(cardReason(x,p||{presupuesto:null,maxEsc:1}))}</span></div><button class="button outline view-flight" data-action="flight" data-id="${esc(f.id)}">Ver vuelo${icon('arrow')}</button></div></article>`;
 }
-function sortedFlights(){
-  const mode=$('sort').value;const all=[...current.r];
+// Real provider flights plus the separately labelled simulated ones.
+const poolDe=datos=>datos.simulados?[...datos.vuelos,...datos.simulados]:datos.vuelos;
+function sortedFlights(fuente){
+  const mode=$('sort').value;const all=current.r.filter(x=>!fuente||x.f.fuente===fuente);
   if(mode==='price')all.sort((a,b)=>a.f.precio-b.f.precio||b.score-a.score);
   else if(mode==='duration')all.sort((a,b)=>a.f.horas-b.f.horas||b.score-a.score);
   if(showAll)return all;
   if(mode!=='match')return all.slice(0,3);
   // Prefer three different destinations when the request is open.
-  const varied=[];for(const x of current.lista){if(!varied.some(v=>v.f.dest.k===x.f.dest.k))varied.push(x);if(varied.length===3)break;}
-  if(varied.length<3)for(const x of current.lista){if(!varied.includes(x))varied.push(x);if(varied.length===3)break;}
+  const ranked=[...current.lista.filter(x=>!fuente||x.f.fuente===fuente),...all];
+  const varied=[];for(const x of ranked){if(!varied.some(v=>v.f.dest.k===x.f.dest.k))varied.push(x);if(varied.length===3)break;}
+  if(varied.length<3)for(const x of ranked){if(!varied.includes(x))varied.push(x);if(varied.length===3)break;}
   return varied;
+}
+function flightGroups(p){
+  const {datos,r}=current;
+  if(current.preview||datos.fuente!=='real')return sortedFlights().map(x=>flightCard(x,p)).join('');
+  const reales=sortedFlights('real'),simulados=sortedFlights('sim');
+  const head=(title,note)=>`<div class="flight-group-head"><h3>${title}</h3><p>${note}</p></div>`;
+  return head('Vuelos reales','Precios encontrados en Aviasales · sujetos a disponibilidad')+
+    (reales.length?reales.map(x=>flightCard(x,p)).join(''):`<p class="flight-group-empty">La API no tiene vuelos reales que cumplan estas condiciones.</p>`)+
+    (simulados.length?head('Vuelos simulados','Opciones ilustrativas para comparar · no se pueden reservar')+simulados.map(x=>flightCard(x,p)).join(''):'');
 }
 function renderResults(){
   if(!current)return;
   const {p,datos,r}=current;
   $('understood').innerHTML=`<span class="understood-label">${icon('sparkle')}Entendimos tu viaje:</span><div class="filter-tags">${profileTags(p).slice(0,7).map(t=>`<span class="filter-tag">${esc(t)}</span>`).join('')}</div><button class="text-link" data-action="edit-filters">Editar</button>`;
   $('flight-grid').setAttribute('aria-busy','false');
-  $('flight-grid').innerHTML=r.length?sortedFlights().map(x=>flightCard(x,p)).join(''):emptyState('Probemos con un poco más de aire.','No encontramos vuelos con esas condiciones. Podés ampliar el presupuesto, aceptar una escala o cambiar de mes.','edit-filters','Ajustar búsqueda');
-  $('show-all').hidden=r.length<=3&&!current.preview;$('show-all').innerHTML=(showAll?'Ver menos opciones':'Ver todas las opciones')+icon('arrow');
+  $('flight-grid').innerHTML=r.length?flightGroups(p):emptyState('Probemos con un poco más de aire.','No encontramos vuelos con esas condiciones. Podés ampliar el presupuesto, aceptar una escala o cambiar de mes.','edit-filters','Ajustar búsqueda');
+  const perGroup=datos.fuente==='real'&&!current.preview?Math.max(r.filter(x=>x.f.fuente==='real').length,r.filter(x=>x.f.fuente==='sim').length):r.length;
+  $('show-all').hidden=perGroup<=3&&!current.preview;$('show-all').innerHTML=(showAll?'Ver menos opciones':'Ver todas las opciones')+icon('arrow');
   const real=datos.fuente==='real';
-  $('data-source').textContent=real?'Precios de Aviasales · sujetos a disponibilidad':'Modo demo · Precios simulados';
+  $('data-source').textContent=real?'Precios reales de Aviasales · vuelos simulados identificados aparte':'Modo demo · Precios simulados';
   $('footer-source').textContent=real?'Precios de Aviasales · Imágenes con IA':'Modo demo · Precios ilustrativos';
   $('results-status').textContent=r.relajado!=null?current.resumen:(!current.preview&&datos.motivo?datos.motivo:'');
   $('assistant').hidden=!r.length;
@@ -150,7 +163,7 @@ async function executeSearch(p,text,{ask=false,resetChat=true}={}){
   $('flight-grid').innerHTML=Array.from({length:3},()=>'<div class="skeleton-card" aria-hidden="true"><div class="skeleton-image"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div><div class="skeleton-line"></div></div>').join('');
   try{
     const datos=await obtenerVuelos(p,true);await pausa(250);
-    const r=buscarVuelos(p,datos.vuelos);const result=r.length?decidir(p,r):{lista:[],resumen:''};
+    const r=buscarVuelos(p,poolDe(datos));const result=r.length?decidir(p,r):{lista:[],resumen:''};
     current={p,r,...result,datos,txt:text,preview:false};showAll=false;
     if(resetChat){messages=[];renderChat();$('chat-panel').hidden=true;$('toggle-chat').setAttribute('aria-expanded','false');}
     renderResults();
@@ -188,7 +201,7 @@ async function sendChat(text){
     if(!response){
       const {n,cambios}=ajustar(current.p,text,current);
       if(cambios.length){
-        const datos=await obtenerVuelos(n);const r=buscarVuelos(n,datos.vuelos);
+        const datos=await obtenerVuelos(n);const r=buscarVuelos(n,poolDe(datos));
         if(!r.length)response=`Con ese cambio (${juntar(cambios)}) no encontré vuelos. Mantuve tu búsqueda anterior. Probemos con otras fechas o un presupuesto más amplio.`;
         else{
           const result=decidir(n,r);current={p:n,r,...result,datos,txt:current.txt+'\n'+text,preview:false};showAll=false;
@@ -269,7 +282,7 @@ async function refreshWatches(ids=null,simulate=false){
     const watches=state.watches.filter(w=>w.enabled&&(!ids||ids.includes(String(w.id))));
     for(const w of watches){if(simulate&&w.source==='real')continue;await checkWatch(w,!simulate);}
     saveState();renderWatchPreview();renderSaved();renderAlerts();
-    if(simulate){toast('Simulación actualizada. Los precios reales no se modificaron.');if(current?.datos.fuente==='sim'){const r=buscarVuelos(current.p,current.datos.vuelos);if(r.length)current={...current,r,...decidir(current.p,r)};renderResults();}}
+    if(simulate){toast('Simulación actualizada. Los precios reales no se modificaron.');if(current?.datos.fuente==="sim"||current?.datos.simulados){const r=buscarVuelos(current.p,poolDe(current.datos));if(r.length)current={...current,r,...decidir(current.p,r)};renderResults();}}
     else if(ids)toast('Búsqueda revisada.');
   }catch{toast('No pudimos revisar el radar. Volvé a intentar en un momento.');}
   finally{monitorBusy=false;$('refresh-all').disabled=false;$('simulate').disabled=false;}

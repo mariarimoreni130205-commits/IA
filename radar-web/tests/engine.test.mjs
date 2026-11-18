@@ -59,3 +59,10 @@ test('Buenos Aires can be a destination from Rosario, with no self flights',()=>
   const r=run(`(()=>{const q=leer('Quiero viajar a Buenos Aires desde Rosario');return {q,r:buscarVuelos(perfilDesde(q),VUELOS_SIM),invalid:VUELOS_SIM.some(f=>f.origen===f.dest.k)};})()`);
   assert.deepEqual(Array.from(r.q.origenes),['ROS']);assert.equal(r.q.ciudades[0],'Buenos Aires');assert.equal(r.invalid,false);assert.ok(r.r.length>0);
 });
+test('real responses carry simulated flights separately so both can be shown apart',async()=>{
+  const year=new Date().getFullYear()+1;
+  const flight={id:'provider-1',destino:'LIS',origen:'EZE',fecha:`${year}-02-10`,precio:810,esc:1,horas:15,dias:14,aero:'TAP'};
+  const result=await run(`obtenerVuelos(perfilDesde(leer('Lisboa en febrero hasta 1200 dólares')))`,{location:{protocol:'http:'},fetch:async()=>({ok:true,json:async()=>({vuelos:[flight]})})});
+  assert.ok(result.vuelos.every(f=>f.fuente==='real'));
+  assert.ok(result.simulados.length>0&&result.simulados.every(f=>f.fuente==='sim'));
+});
