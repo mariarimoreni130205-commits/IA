@@ -8,7 +8,7 @@ const money=n=>'US$ '+Math.round(n).toLocaleString('es-AR');
 const fecha=f=>`${f.dia} ${MESES[f.mes].slice(0,3)} ${f.anio}`;
 const NOMP={precio:'precio',escalas:'pocas escalas',origen:'ciudad de salida',viaje:'duración del viaje',vuelo:'vuelo corto',fecha:'fecha de salida'};
 const COUNTRIES={...Object.fromEntries(Object.entries(globalThis.RADAR_AIRPORTS||{}).map(([code,a])=>[code,a.country])),LIS:'Portugal',MAD:'España',FCO:'Italia',CDG:'Francia',BCN:'España',LHR:'Reino Unido',MIA:'Estados Unidos',JFK:'Estados Unidos',GIG:'Brasil',FLN:'Brasil',PUJ:'Rep. Dominicana',CUN:'México'};
-const PHOTOS={LIS:'lisboa.webp',MAD:'madrid.webp',FCO:'roma.webp',BCN:'barcelona.jpg',CDG:'paris.jpg',AMS:'amsterdam.jpg',MIA:'miami.png',IST:'estambul.png'};
+const PHOTOS={LIS:'lisboa.webp',MAD:'madrid.webp',FCO:'roma.webp',BCN:'barcelona.jpg',CDG:'paris.jpg',AMS:'amsterdam.jpg',MIA:'miami.png',IST:'estambul.png',KEF:'reikiavik.png'};
 const DEMO_QUERY='Quiero ir a Europa en febrero, hasta US$ 1.200, por 14 días.';
 const STORAGE_KEY='radar-vuelos-v2';
 const ICON_PATHS={
