@@ -8,7 +8,7 @@ const money=n=>'US$ '+Math.round(n).toLocaleString('es-AR');
 const fecha=f=>`${f.dia} ${MESES[f.mes].slice(0,3)} ${f.anio}`;
 const NOMP={precio:'precio',escalas:'pocas escalas',origen:'ciudad de salida',viaje:'duración del viaje',vuelo:'vuelo corto',fecha:'fecha de salida'};
 const COUNTRIES={...Object.fromEntries(Object.entries(globalThis.RADAR_AIRPORTS||{}).map(([code,a])=>[code,a.country])),LIS:'Portugal',MAD:'España',FCO:'Italia',CDG:'Francia',BCN:'España',LHR:'Reino Unido',MIA:'Estados Unidos',JFK:'Estados Unidos',GIG:'Brasil',FLN:'Brasil',PUJ:'Rep. Dominicana',CUN:'México'};
-const PHOTOS={LIS:'lisboa',MAD:'madrid',FCO:'roma'};
+const PHOTOS={LIS:'lisboa.webp',MAD:'madrid.webp',FCO:'roma.webp',BCN:'barcelona.jpg'};
 const DEMO_QUERY='Quiero ir a Europa en febrero, hasta US$ 1.200, por 14 días.';
 const STORAGE_KEY='radar-vuelos-v2';
 const ICON_PATHS={
@@ -36,7 +36,7 @@ function icon(name){return `<svg class="icon" viewBox="0 0 24 24" aria-hidden="t
 function hydrateIcons(root=document){root.querySelectorAll('[data-icon]').forEach(el=>{el.innerHTML=icon(el.dataset.icon);el.removeAttribute('data-icon');});}
 function photo(f,small=false){
   const slug=PHOTOS[f.dest.k];
-  return slug?`<img src="assets/${slug}.webp" alt="${esc(f.dest.c)}, ${esc(COUNTRIES[f.dest.k])}" loading="lazy" width="1536" height="1024">`:
+  return slug?`<img src="assets/${slug}" alt="${esc(f.dest.c)}, ${esc(COUNTRIES[f.dest.k])}" loading="lazy" width="1536" height="1024">`:
     `<div class="destination-art" aria-label="Destino ${esc(f.dest.c)}"><strong>${esc(f.dest.k)}</strong>${small?'':`<small>${esc(f.dest.c)}</small>`}</div>`;
 }
 function toast(message){const el=document.createElement('div');el.className='toast';el.textContent=message;$('toasts').append(el);setTimeout(()=>el.remove(),4300);}
