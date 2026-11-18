@@ -42,6 +42,12 @@ Los precios del proveedor son datos previamente encontrados, sujetos a disponibi
 
 La vista privada publicada con Sites es una demo estática; la integración de servidor está incluida en el proyecto local y en el paquete para Vercel.
 
+### Configuración de Vercel
+
+Al importar el repositorio `Nacho234/marina`, seleccioná `radar-web` como **Root Directory**. `vercel.json` fija **Framework Preset: Other**, omite instalación y compilación, y sirve la carpeta actual. Vercel publica `api/vuelos.js` como función de servidor. La configuración evita que Vercel interprete `app.js`, que utiliza el DOM, como un servidor Node. `server.mjs` es solamente el servidor local.
+
+Si el proyecto ya se importó, el siguiente despliegue usa esta configuración del repositorio. La raíz debe seguir siendo `radar-web`.
+
 ## Persistencia y alertas
 
 Los favoritos, búsquedas y alertas se guardan en `localStorage` bajo `radar-vuelos-v2`. Se importan búsquedas y alertas de la clave `rv` de la versión anterior cuando corresponde.
