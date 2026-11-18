@@ -82,6 +82,30 @@ La cabecera implementa el concepto aprobado con tres renders independientes en `
 
 El desplazamiento de la página es normal: no hay escenas fijadas ni transiciones asociadas al scroll. Las animaciones CSS se pausan cuando el hero queda fuera de pantalla, al ocultar la pestaña o con el control de pausa; se respeta `prefers-reduced-motion`. El buscador sigue siendo HTML accesible y lleva a las aclaraciones o resultados al enviar. `navigation.js` convierte la navegación móvil en un menú hamburguesa que se cierra al elegir una sección, tocar afuera o presionar Escape.
 
+## Visita de Torre Urbana (prototipo visual)
+
+La sección del hotel usa un render local de Blender y controles HTML/SVG, sin una
+suscripción ni una API de video. El hotel, la suite y la ciudad son ficticios.
+Todos los pisos llevan al mismo recorrido de la suite modelo.
+
+`hotel.js` carga los medios al acercarse la sección a la pantalla. En escritorio,
+pasar por el contorno del hotel reproduce el acercamiento; también hay un botón
+para teclado y celular. El video se detiene para elegir uno de diez pisos y luego
+continúa por la ventana hasta el interior. Incluye pausa y regreso. La segunda
+mitad del MP4 contiene los cuadros originales en orden inverso: volver cambia al
+cuadro equivalente antes de continuar, sin un cambio de escena. La reproducción
+se pausa al ocultar la pestaña o alejarse de la sección. Movimiento reducido evita
+el inicio automático por hover; el recorrido queda disponible mediante un botón.
+
+Los polígonos de los pisos salen de la proyección de la cámara de Blender y están
+en `assets/hotel/tour.json`. `hotel-playback.js` contiene las conversiones de tiempo
+para la vuelta. `server.mjs` admite peticiones HTTP Range para desplazarse dentro
+del MP4 local; `media-range.mjs` valida los rangos. Vercel sirve estos medios como
+archivos estáticos. Los créditos están en `assets/hotel/CREDITS.md`.
+
+Este render es una reconstrucción 3D propia, no una reproducción exacta de la
+fotografía conceptual generada. La calidad visual está en evaluación.
+
 ## Mundo 3D
 
 `globe.js` carga Three.js y la escena al acercarse la sección al área visible. `globe-scene.js` dibuja una Tierra texturada, una capa de nubes, una atmósfera suave y aviones modelados con geometría procedural. Los vuelos siguen arcos geográficos entre coordenadas de aeropuertos; todos son simulados, sin conexión a datos de tráfico aéreo.
