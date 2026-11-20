@@ -167,7 +167,7 @@ async function executeSearch(p,text,{ask=false,resetChat=true}={}){
     const datos=await obtenerVuelos(p,true);await pausa(250);
     const r=buscarVuelos(p,poolDe(datos));const result=r.length?decidir(p,r):{lista:[],resumen:''};
     current={p,r,...result,datos,txt:text,preview:false};showAll=false;
-    if(resetChat){messages=[];renderChat();$('chat-panel').hidden=true;$('toggle-chat').setAttribute('aria-expanded','false');}
+    if(resetChat){messages=[];if(!$('chat-panel').hidden)greetChat();renderChat();}
     renderResults();
   }catch{
     $('flight-grid').innerHTML=emptyState('No pudimos completar la búsqueda.','Probá nuevamente en un momento. Tus búsquedas guardadas siguen acá.','retry','Volver a intentar');
@@ -192,7 +192,22 @@ function renderChat(pending=false){
   $('chat-messages').innerHTML=messages.map(m=>`<div class="chat-message ${m.role==='user'?'user':''}">${esc(m.text)}</div>`).join('')+(pending?'<div class="chat-message"><span class="processing">Comparando tus opciones…</span></div>':'');
   $('chat-messages').scrollTop=$('chat-messages').scrollHeight;
 }
-function openChat(){if(!current?.r.length)return;$('chat-panel').hidden=false;$('toggle-chat').setAttribute('aria-expanded','true');if(!messages.length){messages.push({role:'assistant',text:'¡Hola! Soy tu copiloto. Puedo comparar estos vuelos, contarte sobre los destinos o cambiar la búsqueda. ¿Qué querés saber?'});renderChat();}}
+// Floating copilot (bottom-left circle). It can be opened from any view.
+function greetChat(){messages.push({role:'assistant',text:'¡Hola! Soy tu copiloto de viaje. Puedo comparar los vuelos de tu búsqueda, contarte sobre los destinos o buscar otra cosa. ¿Adónde tenés ganas de ir?'});}
+function setChatOpen(open){
+  $('chat-panel').hidden=!open;
+  for(const id of ['copilot-fab','toggle-chat'])$(id)?.setAttribute('aria-expanded',String(open));
+  $('copilot-fab').setAttribute('aria-label',open?'Cerrar copiloto de viaje':'Abrir copiloto de viaje');
+  if(open){if(!messages.length)greetChat();renderChat();}
+}
+function openChat(){if(!current)return;if($('chat-panel').hidden)setChatOpen(true);}
+// The search box only takes travel requests.
+function offTopicSearch(){
+  $('search-error').textContent='Esto es un buscador de vuelos 😉 Contanos adónde, cuándo y con cuánto presupuesto querés viajar. Por ejemplo: «Europa en febrero, hasta US$ 1.200, por 14 días».';
+  $('search-error').hidden=false;$('query').focus();
+}
+// After three off-topic messages in a row the copilot takes a one-minute break without calling the AI.
+let offTopicStrikes=0,copilotPausedUntil=0;
 // Compact list of the current results that the copilot is allowed to talk about.
 function flightContext(){
   return [...current.r].sort((a,b)=>b.score-a.score).slice(0,24).map(({f,score})=>({destino:f.dest.c,pais:COUNTRIES[f.dest.k]||'',origen:ORIGENES[f.origen],
@@ -200,9 +215,12 @@ function flightContext(){
 }
 // Returns the copilot's reply, or null when the AI is unavailable (then the rule engine answers).
 async function copilotReply(){
+  if(Date.now()<copilotPausedUntil)return 'Hagamos una pausa de un minuto 😉 Después seguimos con tu viaje: destinos, fechas, presupuesto o los vuelos que encontramos.';
   let res;
   try{res=await pedirIA({modo:'copiloto',mensajes:messages.slice(-12),resumen:current.p.resumen,vuelos:flightContext()},30000);}catch{return null;}
   let text=res.respuesta;
+  if(res.fueraDeTema){if(++offTopicStrikes>=3){offTopicStrikes=0;copilotPausedUntil=Date.now()+60000;}return text;}
+  offTopicStrikes=0;
   if(res.nuevaBusqueda){
     const n=perfilDesde(combinarIA(leer(''),res.nuevaBusqueda));
     if(!n.origenes.length&&!n.origenAbierto){n.origenes=[...current.p.origenes];n.origenAbierto=current.p.origenAbierto;}
@@ -217,7 +235,7 @@ async function copilotReply(){
   return text;
 }
 async function sendChat(text){
-  if(!text.trim()||chatBusy||searchBusy||!current?.r.length)return;
+  if(!text.trim()||chatBusy||searchBusy||!current)return;
   openChat();chatBusy=true;$('chat-send').disabled=true;$('chat-input').value='';
   messages.push({role:'user',text:text.trim()});renderChat(true);
   try{
@@ -375,7 +393,8 @@ document.addEventListener('click',async event=>{
   else if(action==='edit-filters')openFilters();
   else if(action==='close-filters')$('filters-form').hidden=true;
   else if(action==='retry')executeSearch(await parseSearchIA($('query').value),$('query').value);
-  else if(action==='toggle-chat'){if($('chat-panel').hidden){openChat();$('chat-input').focus();}else{$('chat-panel').hidden=true;$('toggle-chat').setAttribute('aria-expanded','false');}}
+  else if(action==='toggle-chat'){if($('chat-panel').hidden){openChat();$('chat-input').focus();}else setChatOpen(false);}
+  else if(action==='close-chat'){setChatOpen(false);$('copilot-fab').focus();}
   else if(action==='voice')startVoice();
   else if(action==='skip-questions'&&clarification){const c=clarification;clarification=null;await executeSearch(c.p,c.text);}
   else if(action==='create-watch')openWatchDialog();
@@ -404,6 +423,7 @@ document.addEventListener('submit',async event=>{
     if(searchBusy||chatBusy)return;
     $('search-button').disabled=true;$('search-button').innerHTML='<span class="processing">Entendiendo tu viaje</span>';
     let p;try{p=await parseSearchIA(text);}finally{$('search-button').disabled=false;$('search-button').innerHTML='<span>Encontrar vuelos</span>'+icon('arrow');}
+    if(p.fueraDeTema){offTopicSearch();return;}
     await executeSearch(p,text,{ask:true});
     // Bring the search answer or clarification directly into view.
     const target=$('clarifications').hidden?$('recommendations'):$('clarifications');
@@ -416,11 +436,12 @@ document.addEventListener('submit',async event=>{
   }else if(form.id==='clarification-form'&&clarification){
     const c=clarification;const answers=c.qs.map((q,i)=>$('answer-'+i).value.trim()).filter(Boolean);
     if(!answers.length){toast('Elegí una respuesta o buscá con los datos que tenemos.');return;}
-    const text=c.text+'\nAclaraciones: '+answers.join('. ')+'.';clarification=null;const p=await parseSearchIA(text);await executeSearch(p,text);
+    const text=c.text+'\nAclaraciones: '+answers.join('. ')+'.';clarification=null;const p=await parseSearchIA(text);if(p.fueraDeTema){offTopicSearch();return;}await executeSearch(p,text);
   }else if(form.id==='watch-form'&&watchDraft){
     const draft=watchDraft;const target=Number($('watch-target').value);if(target<50||target>100000)return;closeDialog();await createWatch(draft.p,target,draft.txt,draft.source);
   }
 });
+$('chat-panel').addEventListener('keydown',event=>{if(event.key==='Escape'){event.stopPropagation();setChatOpen(false);$('copilot-fab').focus();}});
 $('sort').addEventListener('change',()=>{showAll=false;renderResults();});
 $('query').addEventListener('input',resizeQuery);
 $('query').addEventListener('keydown',event=>{if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();$('search-form').requestSubmit();}});

@@ -102,12 +102,7 @@
           <div class="assistant-summary">
             <div class="assistant-label"><span class="assistant-symbol" data-icon="sliders"></span><span>TU COPILOTO<br>DE VIAJE</span></div>
             <div class="assistant-intro"><h2 id="assistant-title">Tu viaje cambia. La búsqueda también.</h2><p>Preguntale lo que quieras sobre estos vuelos o pedile que ajuste la búsqueda.</p><div class="suggestions"><button data-prompt="Prefiero vuelos directos">Prefiero vuelos directos</button><button data-prompt="Busquemos algo más barato">Busquemos algo más barato</button><button data-prompt="¿Por qué Lisboa?">¿Por qué Lisboa?</button></div></div>
-            <button class="round-button" data-action="toggle-chat" aria-label="Abrir conversación" aria-expanded="false" id="toggle-chat"><span data-icon="arrow"></span></button>
-          </div>
-          <div id="chat-panel" class="chat-panel" hidden>
-            <div id="chat-messages" class="chat-messages" role="log" aria-live="polite" aria-label="Conversación con el copiloto"></div>
-            <form id="chat-form" class="chat-form"><label class="sr-only" for="chat-input">Tu mensaje</label><input id="chat-input" placeholder="¿Cuál me conviene? ¿Qué hay para hacer allá? Más barato, sin escalas…" maxlength="800" autocomplete="off"><button class="round-button" id="chat-send" type="submit" aria-label="Enviar mensaje"><span data-icon="arrow"></span></button></form>
-            <p class="chat-note">Copiloto con IA: usa solo los vuelos de esta búsqueda y puede equivocarse. Precios sujetos a disponibilidad; los simulados no se pueden reservar.</p>
+            <button class="round-button" data-action="toggle-chat" aria-label="Abrir copiloto" aria-controls="chat-panel" aria-expanded="false" id="toggle-chat"><span data-icon="arrow"></span></button>
           </div>
         </section>
 
@@ -191,5 +186,14 @@
   </div>
   <dialog id="detail-dialog" class="detail-dialog"><button class="dialog-close icon-button" data-action="close-dialog" aria-label="Cerrar"><span data-icon="close"></span></button><div id="dialog-content"></div></dialog>
   <div class="toast-region" id="toasts" role="status" aria-live="polite"></div>
+  <div class="copilot">
+    <section id="chat-panel" class="copilot-panel" aria-labelledby="copilot-title" hidden>
+      <header class="copilot-head"><span class="copilot-avatar" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m3 11 7 2 4 8 3-18-14 8Zm7 2 7-10"/></svg></span><div><h2 id="copilot-title">Tu copiloto de viaje</h2><p>Con IA · solo habla de viajes</p></div><button class="icon-button copilot-close" type="button" data-action="close-chat" aria-label="Cerrar copiloto"><span data-icon="close"></span></button></header>
+      <div id="chat-messages" class="chat-messages" role="log" aria-live="polite" aria-label="Conversación con el copiloto"></div>
+      <form id="chat-form" class="chat-form"><label class="sr-only" for="chat-input">Tu mensaje</label><input id="chat-input" placeholder="¿Cuál me conviene? ¿Qué hay para hacer allá?" maxlength="800" autocomplete="off"><button class="round-button" id="chat-send" type="submit" aria-label="Enviar mensaje"><span data-icon="arrow"></span></button></form>
+      <p class="chat-note">Usa solo los vuelos de tu búsqueda y puede equivocarse. Los simulados no se pueden reservar.</p>
+    </section>
+    <button class="copilot-fab" id="copilot-fab" type="button" data-action="toggle-chat" aria-controls="chat-panel" aria-expanded="false" aria-label="Abrir copiloto de viaje"><svg class="copilot-fab-open" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4Z"/><path d="M8 9h8M8 12h5"/></svg><svg class="copilot-fab-close" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+  </div>
 </body>
 </html>
