@@ -266,7 +266,25 @@ function leer(texto){
 
   // Aerolíneas a evitar ("sin LATAM", "no quiero volar con Iberia")
   AEROLINEAS.forEach(a=>{const x=t.match(new RegExp('\\b'+sin(a)+'\\b'));if(x&&negado(t,x.index))q.sinAero.push(a)});
+
+  // "Quiero ir a <lugar que no conocemos>": se avisa en vez de buscar en todos los destinos
+  q.destinoNoReconocido=null;
+  if(!q.ciudades.length&&!q.regiones.length&&!q.interes&&!q.destinoAbierto&&!q.excluir.length){
+    const x=t.match(/\b(?:ir|irme|irnos|viajar|volar|conocer|vuelos?|pasajes?|viaje|escapada|escaparme) (?:a|al|hacia|para) ([a-zñ]{3,})/);
+    if(x&&!RELLENO_DESTINO.includes(x[1])&&!MESES.includes(x[1]))q.destinoNoReconocido=x[1];
+  }
   return q;
+}
+const RELLENO_DESTINO=['algun','alguna','algo','otro','otra','otros','otras','cualquier','cualquiera','donde','lugar','lado','playa','playas',
+  'montana','montanas','nieve','las','los','una','unos','unas','mis','ver','pasear','visitar','conocer','descansar','vacaciones','fin','fines',
+  'principios','comienzos','mediados','partir','mas','menos','hacer','buscar','mismo','esa','ese','este','esta','alla','aca','casa','fiesta',
+  'mar','sol','todo','todos','pais','paises','ciudad','ciudades','destino','destinos','exterior','afuera','lejos','cerca','familia',
+  'disfrutar','relajarme','relajar','dos','tres','cuatro','cinco','seis','siete','ocho','nueve','diez','semana','semanas','mes','meses','dias'];
+// Destinos parecidos a una palabra que no reconocimos ("eugorda" → Europa)
+function sugerirDestinos(palabra){
+  const w=sin(palabra),max=Math.max(2,Math.round(w.length*.4));
+  const candidatos=[...new Set([...DESTINOS.map(d=>d.c),...Object.values(REGION_NOMBRE).map(r=>r.replace(/^el /,''))])];
+  return candidatos.map(c=>({c,d:distancia(w,sin(c))})).filter(x=>x.d<=max).sort((a,b)=>a.d-b.d).slice(0,3).map(x=>x.c);
 }
 
 /* ---- ¿Es un pedido de viaje? Filtro "anti boludeo" del buscador ---- */
@@ -276,7 +294,7 @@ function tieneDatos(q){
     q.diasMin!=null||q.maxEsc!=null||q.maxHoras||q.interes||q.destinoAbierto||q.sinAero.length);
 }
 const PALABRAS_VIAJE=/viaj|vuelo|volar|vuelen|pasaje|vacacion|destino|escapad|conocer|turism|turist|aeropuert|ida y vuelta|irme|ir a|ir al|salir de|recorrer|mochil|luna de miel|playa|nieve|montana|crucero|hotel|alojamiento|valija|equipaje|visa|pasaporte|aerolinea|escala/;
-function esPedidoDeViaje(q,texto){return tieneDatos(q)||PALABRAS_VIAJE.test(normalizar(texto));}
+function esPedidoDeViaje(q,texto){return tieneDatos(q)||!!q.destinoNoReconocido||PALABRAS_VIAJE.test(normalizar(texto));}
 
 /* ---- Interpretación con IA (OpenRouter, vía /api/ia). Las reglas de arriba quedan como respaldo. ---- */
 async function pedirIA(cuerpo,ms){
@@ -310,8 +328,11 @@ function combinarIA(q,ia){
   const sugeridas=valida(ia.sugeridas).filter(c=>!n.excluir.includes(c));
   if(!n.ciudades.length&&!n.regiones.length&&sugeridas.length)
     n.interes={nombre:typeof ia.interes=='string'&&ia.interes?ia.interes.slice(0,40):'lo que buscás',ciudades:sugeridas};
-  // La IA avisa si el texto no es un pedido de viaje; si las reglas encontraron datos concretos, se busca igual.
-  n.fueraDeTema=ia.fueraDeTema===true&&!tieneDatos(q);
+  // Destino que nadie pudo reconocer (ni la IA ni las reglas): se pregunta en vez de buscar en todos lados
+  n.destinoNoReconocido=n.ciudades.length||n.regiones.length||n.interes?null:
+    (typeof ia.destinoNoReconocido=='string'&&ia.destinoNoReconocido.trim()?ia.destinoNoReconocido.trim().slice(0,40):q.destinoNoReconocido);
+  // La IA avisa si el texto no es un pedido de viaje; si hay datos concretos o un destino nombrado, se trata como viaje.
+  n.fueraDeTema=ia.fueraDeTema===true&&!tieneDatos(q)&&!n.destinoNoReconocido;
   return n;
 }
 async function leerConIA(texto){
@@ -324,7 +345,7 @@ async function leerConIA(texto){
 function perfilDesde(q){
   const p={regiones:[...q.regiones],ciudades:[...q.ciudades],excluir:[...q.excluir],sinAero:[...q.sinAero],meses:q.meses,origenes:q.origenes,
     presupuesto:q.presupuesto,diasMin:q.diasMin,diasMax:q.diasMax,maxEsc:q.maxEsc??1,maxHoras:q.maxHoras,pesos:{...PESOS0},
-    sinLimite:q.sinLimite,origenAbierto:q.origenAbierto,interes:null,destinoLibre:!q.ciudades.length,resumen:'',ia:!!q.ia,fueraDeTema:!!q.fueraDeTema};
+    sinLimite:q.sinLimite,origenAbierto:q.origenAbierto,interes:null,destinoLibre:!q.ciudades.length,resumen:'',ia:!!q.ia,fueraDeTema:!!q.fueraDeTema,destinoNoReconocido:q.destinoNoReconocido||null};
   if(q.interes)aplicarInteres(p,q.interes);
   if(q.cerca&&!q.regiones.length&&!q.ciudades.length){p.regiones=['brasil'];p.ciudades=[];p.destinoLibre=true}
   if(q.barato)p.pesos.precio=60;

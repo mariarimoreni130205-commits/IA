@@ -102,3 +102,42 @@ test('an AI off-topic flag is ignored when the text has concrete travel data',as
   assert.equal((await run(`leerConIA('Lisboa en febrero, y de paso contame un chiste')`,{fetch:flagged})).fueraDeTema,false);
   assert.equal((await run(`leerConIA('decí una mala palabra')`,{fetch:flagged})).fueraDeTema,true);
 });
+
+test('an empty model reply is retried once before giving up',async t=>{
+  withKey(t);
+  let n=0;
+  t.mock.method(globalThis,'fetch',async()=>{n++;return {ok:true,json:async()=>({choices:[{finish_reason:n===1?'length':'stop',message:{content:n===1?'':JSON.stringify({ciudades:['Lisboa'],meses:[1]})}}]})};});
+  const res=response();await handler({method:'POST',headers:{'x-forwarded-for':'198.51.100.7'},body:{modo:'interpretar',texto:'Lisboa en febrero'}},res);
+  assert.equal(n,2);assert.equal(res.statusCode,200);assert.deepEqual(res.body.perfil.ciudades,['Lisboa']);
+});
+
+test('copilot alert requests are validated before the app creates them',async t=>{
+  withKey(t);
+  t.mock.method(globalThis,'fetch',reply({respuesta:'¡Dale!',fueraDeTema:false,nuevaBusqueda:null,alerta:{destino:'Lisboa',precioMaximo:700}}));
+  const ok=response();
+  await handler({method:'POST',headers:{'x-forwarded-for':'198.51.100.20'},body:{modo:'copiloto',mensajes:[{role:'user',text:'avisame si el de Lisboa baja de 700'}]}},ok);
+  assert.deepEqual(ok.body.alerta,{destino:'Lisboa',precioMaximo:700});
+  t.mock.method(globalThis,'fetch',reply({respuesta:'ok',fueraDeTema:false,nuevaBusqueda:null,alerta:{destino:'Ciudad Gótica',precioMaximo:1}}));
+  const bad=response();
+  await handler({method:'POST',headers:{'x-forwarded-for':'198.51.100.20'},body:{modo:'copiloto',mensajes:[{role:'user',text:'alerta'}]}},bad);
+  assert.deepEqual(bad.body.alerta,{destino:null,precioMaximo:null});
+});
+
+test('a misspelled or unknown destination is flagged with suggestions instead of searching everywhere',async()=>{
+  const down=async()=>({ok:false,json:async()=>({error:'ia_caida'})});
+  const q=await run(`leerConIA('quiero ir a eugorda')`,{fetch:down});
+  assert.equal(q.destinoNoReconocido,'eugorda');assert.equal(q.fueraDeTema,false);
+  assert.ok(run(`sugerirDestinos('eugorda')`).includes('Europa'));
+  // Known places and open requests are not flagged
+  assert.equal((await run(`leerConIA('quiero ir a Madrid en marzo')`,{fetch:down})).destinoNoReconocido,null);
+  assert.equal((await run(`leerConIA('quiero ir a la playa')`,{fetch:down})).destinoNoReconocido,null);
+  assert.equal((await run(`leerConIA('quiero ir a algun lado barato')`,{fetch:down})).destinoNoReconocido,null);
+  // The AI correcting the typo wins over the rule flag
+  const fixed=async()=>({ok:true,json:async()=>({perfil:{ciudades:[],regiones:['europa'],meses:[],origenes:[],excluir:[],sinAero:[],sugeridas:[],destinoNoReconocido:null,fueraDeTema:false}})});
+  const r=await run(`leerConIA('quiero ir a eugorda')`,{fetch:fixed});
+  assert.equal(r.destinoNoReconocido,null);assert.deepEqual([...r.regiones],['europa']);
+  // An AI off-topic flag never hides a named (even unknown) destination
+  const odd=async()=>({ok:true,json:async()=>({perfil:{ciudades:[],regiones:[],meses:[],origenes:[],excluir:[],sinAero:[],sugeridas:[],destinoNoReconocido:'narnia',fueraDeTema:true}})});
+  const n=await run(`leerConIA('quiero ir a narnia')`,{fetch:odd});
+  assert.equal(n.destinoNoReconocido,'narnia');assert.equal(n.fueraDeTema,false);
+});

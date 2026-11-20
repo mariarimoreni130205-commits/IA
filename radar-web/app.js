@@ -206,6 +206,14 @@ function offTopicSearch(){
   $('search-error').textContent='Esto es un buscador de vuelos 😉 Contanos adónde, cuándo y con cuánto presupuesto querés viajar. Por ejemplo: «Europa en febrero, hasta US$ 1.200, por 14 días».';
   $('search-error').hidden=false;$('query').focus();
 }
+// A destination nobody recognised: suggest close matches instead of searching everywhere.
+function unknownDestination(word){
+  const options=sugerirDestinos(word);
+  $('search-error').innerHTML=`No encontramos «${esc(word)}» entre nuestros destinos.`+(options.length
+    ?` ¿Quisiste decir ${options.map(o=>`<button type="button" class="text-link small" data-fix-from="${esc(word)}" data-fix-to="${esc(o)}">${esc(o)}</button>`).join(' o ')}?`
+    :' Probá con una ciudad o región, por ejemplo Europa, Brasil o Miami.');
+  $('search-error').hidden=false;$('query').focus();
+}
 // After three off-topic messages in a row the copilot takes a one-minute break without calling the AI.
 let offTopicStrikes=0,copilotPausedUntil=0;
 // Compact list of the current results that the copilot is allowed to talk about.
@@ -232,7 +240,20 @@ async function copilotReply(){
       const best=result.lista[0].f;text+=` La mejor opción ahora es ${ruta(best)} por ${money(best.precio)}${best.fuente==='real'?'':' (vuelo simulado)'}.`;
     }
   }
+  if(res.alerta)text+=' '+await copilotWatch(res.alerta);
   return text;
+}
+// Creates the alert the copilot was asked for, the same way the "Crear alerta" dialog does.
+async function copilotWatch(a){
+  const destino=DESTINOS.some(d=>d.c===a.destino)?a.destino:null;
+  const x=destino?[...current.r].sort((m,n)=>n.score-m.score).find(y=>y.f.dest.c===destino):null;
+  const p=JSON.parse(JSON.stringify(current.p));
+  if(destino){p.ciudades=[destino];p.regiones=[];p.interes=null;p.destinoLibre=false;p.excluir=(p.excluir||[]).filter(c=>c!==destino);}
+  if(x){p.origenes=[x.f.origen];p.meses=[x.f.mes];}
+  p.resumen=resumir(p);
+  const target=Number.isFinite(a.precioMaximo)?a.precioMaximo:(x?.f.precio||p.presupuesto||null);
+  await createWatch(p,target,current.txt,current.datos.fuente);
+  return `Creé la alerta «${watchName({p})}»${target?`: te aviso cuando haya un vuelo a US$ ${target} o menos`:''}. La ves en «Mis búsquedas» y se revisa mientras tenés la app abierta.`;
 }
 async function sendChat(text){
   if(!text.trim()||chatBusy||searchBusy||!current)return;
@@ -376,6 +397,13 @@ function startVoice(){
 // All interactive controls use one delegated handler, including newly rendered results.
 document.addEventListener('click',async event=>{
   const nav=event.target.closest('a[href="#explorar"],a[href="#busquedas"],a[href="#alertas"]');if(nav){event.preventDefault();setView(nav.getAttribute('href').slice(1));return;}
+  const fix=event.target.closest('[data-fix-to]');
+  if(fix){
+    // Swap the unknown word for the suggestion (case-insensitive, accents ignored); append it if not found.
+    const q=$('query'),at=sin(q.value).indexOf(sin(fix.dataset.fixFrom));
+    q.value=at>=0?q.value.slice(0,at)+fix.dataset.fixTo+q.value.slice(at+fix.dataset.fixFrom.length):q.value+' '+fix.dataset.fixTo;
+    $('search-error').hidden=true;$('search-form').requestSubmit();return;
+  }
   const prompt=event.target.closest('[data-prompt]');if(prompt){await sendChat(prompt.dataset.prompt);return;}
   const answer=event.target.closest('[data-answer]');if(answer){$('answer-'+answer.dataset.answer).value=answer.dataset.value;return;}
   const filter=event.target.closest('[data-alert-filter]');if(filter){alertFilter=filter.dataset.alertFilter;document.querySelectorAll('[data-alert-filter]').forEach(b=>{const on=b===filter;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));});renderAlerts();return;}
@@ -424,6 +452,7 @@ document.addEventListener('submit',async event=>{
     $('search-button').disabled=true;$('search-button').innerHTML='<span class="processing">Entendiendo tu viaje</span>';
     let p;try{p=await parseSearchIA(text);}finally{$('search-button').disabled=false;$('search-button').innerHTML='<span>Encontrar vuelos</span>'+icon('arrow');}
     if(p.fueraDeTema){offTopicSearch();return;}
+    if(p.destinoNoReconocido){unknownDestination(p.destinoNoReconocido);return;}
     await executeSearch(p,text,{ask:true});
     // Bring the search answer or clarification directly into view.
     const target=$('clarifications').hidden?$('recommendations'):$('clarifications');
@@ -436,7 +465,7 @@ document.addEventListener('submit',async event=>{
   }else if(form.id==='clarification-form'&&clarification){
     const c=clarification;const answers=c.qs.map((q,i)=>$('answer-'+i).value.trim()).filter(Boolean);
     if(!answers.length){toast('Elegí una respuesta o buscá con los datos que tenemos.');return;}
-    const text=c.text+'\nAclaraciones: '+answers.join('. ')+'.';clarification=null;const p=await parseSearchIA(text);if(p.fueraDeTema){offTopicSearch();return;}await executeSearch(p,text);
+    const text=c.text+'\nAclaraciones: '+answers.join('. ')+'.';clarification=null;const p=await parseSearchIA(text);if(p.fueraDeTema){offTopicSearch();return;}if(p.destinoNoReconocido){unknownDestination(p.destinoNoReconocido);return;}await executeSearch(p,text);
   }else if(form.id==='watch-form'&&watchDraft){
     const draft=watchDraft;const target=Number($('watch-target').value);if(target<50||target>100000)return;closeDialog();await createWatch(draft.p,target,draft.txt,draft.source);
   }
