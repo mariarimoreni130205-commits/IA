@@ -14,7 +14,7 @@ export async function mountWorld(section,stage) {
   const motionPreference=matchMedia('(prefers-reduced-motion: reduce)');
   const listeners=[];
   const listen=(target,type,handler,options)=>{target.addEventListener(type,handler,options);listeners.push(()=>target.removeEventListener(type,handler,options));};
-  let paused=motionPreference.matches,visible=false,lost=false,disposed=false,dirty=true;
+  const paused=false;let visible=false,lost=false,disposed=false,dirty=true;
   let elapsed=0,lastFrame=0,raf=0,interactionUntil=0,dragging=false,focus=null,hovered=null,labelFocused=false;
   let homeDistance=3.7,width=1,height=1,lastLabels=0;
   const renderer=new THREE.WebGLRenderer({alpha:true,antialias:true,powerPreference:'low-power'});
@@ -66,7 +66,7 @@ export async function mountWorld(section,stage) {
   const halo=new THREE.Mesh(new THREE.RingGeometry(.055,.058,48),new THREE.MeshBasicMaterial({color:0xcce77c,side:THREE.DoubleSide,transparent:true,opacity:.8,depthWrite:false}));halo.visible=false;scene.add(halo);
   const object=new THREE.Object3D(),forward=new THREE.Vector3(),radial=new THREE.Vector3(),right=new THREE.Vector3(),up=new THREE.Vector3(),basis=new THREE.Matrix4(),orientation=new THREE.Quaternion();
   const projected=new THREE.Vector3(),cameraArray=[0,0,0];
-  const ui=createWorldUI(section,{airport:selectAirport,flight:selectFlight,clear:clearSelection,zoom:zoom,pause:togglePause,reset});
+  const ui=createWorldUI(section,{airport:selectAirport,flight:selectFlight,clear:clearSelection,zoom:zoom,reset});
 
   function flushDamping(){controls.autoRotate=false;const old=controls.enableDamping;controls.enableDamping=false;controls.update();controls.enableDamping=old;}
   function moveCamera(direction,distance=camera.position.length(),duration=800){
@@ -98,7 +98,6 @@ export async function mountWorld(section,stage) {
   function clearSelection(returnFocus=false){ui.clear();highlight();halo.visible=false;interactionUntil=performance.now()+7000;if(returnFocus)canvas.focus({preventScroll:true});dirty=true;}
   function reset(){clearSelection();moveCamera(initialDirection,homeDistance,650);ui.announce('Vista inicial del mundo.');}
   function zoom(direction){moveCamera(camera.position,camera.position.length()*(direction<0?.82:1.22),400);}
-  function togglePause(){paused=!paused;ui.pauseState(paused);dirty=true;ui.announce(paused?'Animación pausada. Podés seguir explorando ciudades y vuelos.':'Animación reanudada.');}
 
   function updateFlights(delta){
     routes.forEach((route,index)=>{
@@ -185,7 +184,6 @@ export async function mountWorld(section,stage) {
   controls.addEventListener('end',()=>{dragging=false;interactionUntil=performance.now()+9000;});
   controls.addEventListener('change',()=>{dirty=true;});
   listen(canvas,'keydown',event=>{
-    if(event.key===' '){event.preventDefault();togglePause();return;}
     if(event.key==='Home'){event.preventDefault();reset();return;}
     if(['+','=','-','_'].includes(event.key)){event.preventDefault();zoom(event.key==='-'||event.key==='_'?1:-1);return;}
     if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.key))return;
@@ -221,7 +219,6 @@ export async function mountWorld(section,stage) {
   const resizeObserver=new ResizeObserver(resize);resizeObserver.observe(stage);
   const visibilityObserver=new IntersectionObserver(entries=>{visible=entries.some(e=>e.isIntersecting);if(visible){resize();dirty=true;startLoop();}else stopLoop();},{threshold:.01});visibilityObserver.observe(stage);
   listen(document,'visibilitychange',()=>document.hidden?stopLoop():startLoop());
-  listen(motionPreference,'change',()=>{paused=motionPreference.matches;ui.pauseState(paused);dirty=true;});
   listen(canvas,'webglcontextlost',event=>{event.preventDefault();lost=true;stopLoop();stage.dataset.state='error';loading.textContent='La vista 3D se está recuperando…';loading.hidden=false;ui.enable(false);ui.labels.forEach(label=>label.hidden=true);});
   listen(canvas,'webglcontextrestored',()=>{lost=false;stage.dataset.state='ready';loading.hidden=true;dirty=true;ui.enable(true);startLoop();});
   listen(window,'pagehide',event=>{
@@ -230,6 +227,6 @@ export async function mountWorld(section,stage) {
     geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());textures.forEach(t=>t.dispose());renderer.dispose();
   });
   listen(window,'pageshow',()=>{dirty=true;startLoop();});
-  ui.enable(true);ui.pauseState(paused);resize();updateFlights(0);highlight();updateProjection(performance.now());renderer.render(scene,camera);
+  ui.enable(true);resize();updateFlights(0);highlight();updateProjection(performance.now());renderer.render(scene,camera);
   loading.hidden=true;stage.dataset.state='ready';stage.setAttribute('aria-busy','false');startLoop();
 }

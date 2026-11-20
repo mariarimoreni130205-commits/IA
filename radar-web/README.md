@@ -48,6 +48,17 @@ Al importar el repositorio `Nacho234/marina`, seleccioná `radar-web` como **Roo
 
 Si el proyecto ya se importó, el siguiente despliegue usa esta configuración del repositorio. La raíz debe seguir siendo `radar-web`.
 
+## Inteligencia artificial: intérprete y copiloto
+
+`api/ia.js` conecta la app con un modelo de lenguaje a través de [OpenRouter](https://openrouter.ai). Por defecto usa `deepseek/deepseek-v4-flash`; se puede cambiar con la variable `OPENROUTER_MODEL`.
+
+- **Intérprete:** cuando el usuario busca, la IA convierte la frase libre en preferencias (destinos, meses, presupuesto, días, escalas, origen, aerolíneas a evitar) y sugiere ciudades si no nombró destino. El motor de reglas también lee la frase y completa lo que la IA no aporte.
+- **Copiloto:** el chat debajo de los resultados conversa sobre los vuelos encontrados, da consejos de viaje y puede cambiar la búsqueda. Recibe únicamente los vuelos de la búsqueda actual, con su fuente (real o simulado), y tiene instrucciones de no inventar vuelos ni precios.
+
+La IA solo interpreta y conversa: los precios siguen viniendo de Aviasales o de la simulación, y el puntaje lo calcula el motor de utilidad. Todo lo que devuelve el modelo se valida contra el catálogo antes de usarse.
+
+Configurá `OPENROUTER_API_KEY` en las variables del servidor de Vercel; nunca la incluyas en archivos del navegador. Sin la clave, o si el modelo falla, la app vuelve automáticamente al motor de reglas. Conviene fijar un límite de gasto en la clave de OpenRouter, porque el endpoint es público.
+
 ## Persistencia y alertas
 
 Los favoritos, búsquedas y alertas se guardan en `localStorage` bajo `radar-vuelos-v2`. Se importan búsquedas y alertas de la clave `rv` de la versión anterior cuando corresponde.

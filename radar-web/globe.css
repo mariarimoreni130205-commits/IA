@@ -35,9 +35,6 @@
 .world-controls button{display:grid;place-items:center;width:40px;height:40px;border:1px solid #ced8c6;border-radius:50%;background:var(--canvas)}
 .world-controls button:hover{background:#e8eedf;border-color:#9fb18d}
 .world-controls button:disabled{cursor:default;opacity:.45}
-.world-controls .world-play-icon{display:none}
-.world-controls [aria-pressed=true] .world-pause-icon{display:none}
-.world-controls [aria-pressed=true] .world-play-icon{display:block}
 .world-credits{font-size:8px;text-align:right;color:#7d8777;margin:12px 28px 0}.world-credits a{text-decoration:underline;text-underline-offset:2px}.world-credits a:hover{color:var(--ink)}
 .world-labels{position:absolute;inset:0;z-index:3;overflow:hidden;pointer-events:none;border-radius:24px}
 .world-city-label{position:absolute;left:0;top:0;pointer-events:auto;display:flex;align-items:center;gap:6px;min-height:30px;padding:5px 9px;background:#fffffff2;border:1px solid #cbd5bd;border-radius:6px;box-shadow:0 2px 6px #173b3412;font-size:10px;font-weight:750;line-height:1.2;white-space:nowrap;letter-spacing:-.015em;transition:background .15s;will-change:transform}

@@ -35,7 +35,7 @@ export function createWorldUI(section,actions) {
     const code=selection?.type==='airport'?selection.code:selection?.type==='flight'?FLIGHT_ROUTES[selection.index][1]:null;
     if(code){actions.clear();document.dispatchEvent(new CustomEvent('radar:destination',{detail:{code}}));}
   });
-  $('world-pause').addEventListener('click',actions.pause);$('world-reset').addEventListener('click',actions.reset);
+  $('world-reset').addEventListener('click',actions.reset);
   $('world-zoom-in').addEventListener('click',()=>actions.zoom(-1));$('world-zoom-out').addEventListener('click',()=>actions.zoom(1));
   const onEscape=event=>{if(event.key==='Escape'&&selection){event.preventDefault();actions.clear(true);}};
   section.addEventListener('keydown',onEscape);detail.addEventListener('keydown',onEscape);
@@ -73,7 +73,6 @@ export function createWorldUI(section,actions) {
       if(seconds!==lastSecond){$('world-flight-time').textContent=`${phase.airborne?'Animación · llegada en':'Animación · próxima salida en'} ${Math.floor(seconds/60)}:${String(seconds%60).padStart(2,'0')}`;lastSecond=seconds;}
       if($('world-flight-status').textContent!==phase.status)$('world-flight-status').textContent=phase.status;
     },
-    pauseState(paused){$('world-pause').setAttribute('aria-pressed',String(paused));$('world-pause').setAttribute('aria-label',paused?'Reanudar animación':'Pausar animación');$('world-pause').title=paused?'Reanudar animación':'Pausar animación';section.dataset.motion=paused?'paused':'running';},
     zoomState(distance,min,max){$('world-zoom-in').disabled=distance<=min+.02;$('world-zoom-out').disabled=distance>=max-.02;},
     tooltip(text,x,y){const el=$('world-tooltip');el.hidden=!text;if(text){el.textContent=text;el.style.transform=`translate(${x}px,${y}px)`;}},
     featured(index){section.querySelectorAll('[data-world-route]').forEach(el=>el.setAttribute('aria-pressed',String(Number(el.dataset.worldRoute)===index)));}

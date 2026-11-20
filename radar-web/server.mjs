@@ -3,6 +3,7 @@ import {readFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import path from 'node:path';
 import flights from './api/vuelos.js';
+import ia from './api/ia.js';
 
 const root = path.dirname(fileURLToPath(import.meta.url));
 const port = Number(process.env.PORT || 4173);
@@ -15,6 +16,15 @@ const server = http.createServer(async (req,res)=>{
     res.status=n=>{res.statusCode=n;return res;};
     res.json=obj=>{res.setHeader('Content-Type','application/json');res.end(JSON.stringify(obj));};
     try{await flights(req,res);}catch{res.status(502).json({error:'api_caida',mensaje:'No se pudo consultar la fuente de vuelos.'});}
+    return;
+  }
+  if(url.pathname==='/api/ia'){
+    res.status=n=>{res.statusCode=n;return res;};
+    res.json=obj=>{res.setHeader('Content-Type','application/json');res.end(JSON.stringify(obj));};
+    let raw='';
+    for await(const chunk of req){raw+=chunk;if(raw.length>60000){res.status(413).json({error:'muy_grande'});return;}}
+    try{req.body=JSON.parse(raw||'null');}catch{req.body=null;}
+    try{await ia(req,res);}catch{res.status(502).json({error:'ia_caida'});}
     return;
   }
   try{

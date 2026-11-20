@@ -269,11 +269,51 @@ function leer(texto){
   return q;
 }
 
+/* ---- Interpretación con IA (OpenRouter, vía /api/ia). Las reglas de arriba quedan como respaldo. ---- */
+async function pedirIA(cuerpo,ms){
+  if(location.protocol=='file:')throw Error('local');
+  const r=await fetch('/api/ia',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(cuerpo),signal:AbortSignal.timeout(ms)});
+  const j=await r.json().catch(()=>null);
+  if(!r.ok||!j)throw Error((j&&j.error)||'ia_caida');
+  return j;
+}
+// Mezcla lo que entendió la IA con lo que leyeron las reglas. Todo se vuelve a validar contra el catálogo local.
+function combinarIA(q,ia){
+  if(!ia||typeof ia!='object')return q;
+  const nombres=DESTINOS.map(d=>d.c),valida=a=>Array.isArray(a)?a.filter(c=>nombres.includes(c)):[];
+  const regs=Object.keys(REGION_NOMBRE),n={...q,ia:true};
+  const ciudades=valida(ia.ciudades),regiones=Array.isArray(ia.regiones)?ia.regiones.filter(r=>regs.includes(r)):[];
+  if(ciudades.length||regiones.length){n.ciudades=ciudades;n.regiones=regiones;n.interes=null}
+  n.excluir=[...new Set([...q.excluir,...valida(ia.excluir)])];
+  n.ciudades=n.ciudades.filter(c=>!n.excluir.includes(c));
+  n.sinAero=[...new Set([...q.sinAero,...(Array.isArray(ia.sinAero)?ia.sinAero.filter(a=>AEROLINEAS.includes(a)):[])])];
+  const meses=Array.isArray(ia.meses)?ia.meses.filter(m=>Number.isInteger(m)&&m>=0&&m<=11):[];
+  if(meses.length)n.meses=[...new Set(meses)];
+  const origenes=Array.isArray(ia.origenes)?ia.origenes.filter(o=>ORIGENES[o]):[];
+  if(origenes.length)n.origenes=[...new Set(origenes)];
+  if(ia.origenAbierto===true){n.origenes=[];n.origenAbierto=true}
+  if(Number.isFinite(ia.presupuesto)&&ia.presupuesto>=50&&ia.presupuesto<=100000)n.presupuesto=Math.round(ia.presupuesto);
+  if(Number.isFinite(ia.diasMin)&&Number.isFinite(ia.diasMax)&&ia.diasMin>=1&&ia.diasMax>=ia.diasMin){n.diasMin=ia.diasMin;n.diasMax=ia.diasMax}
+  if([0,1,2].includes(ia.maxEsc))n.maxEsc=ia.maxEsc;
+  if(Number.isFinite(ia.maxHoras)&&ia.maxHoras>=1&&ia.maxHoras<=48)n.maxHoras=ia.maxHoras;
+  for(const k of ['sinLimite','barato','escalasOk','corto'])if(ia[k]===true)n[k]=true;
+  // Si no nombró destino, la IA sugiere ciudades según lo que busca ("playa", "museos", "con chicos"…)
+  const sugeridas=valida(ia.sugeridas).filter(c=>!n.excluir.includes(c));
+  if(!n.ciudades.length&&!n.regiones.length&&sugeridas.length)
+    n.interes={nombre:typeof ia.interes=='string'&&ia.interes?ia.interes.slice(0,40):'lo que buscás',ciudades:sugeridas};
+  return n;
+}
+async function leerConIA(texto){
+  const q=leer(texto);
+  try{const {perfil}=await pedirIA({modo:'interpretar',texto:String(texto).slice(0,800)},12000);return combinarIA(q,perfil);}
+  catch{return q;}
+}
+
 // Arma el perfil completo de búsqueda a partir de lo leído
 function perfilDesde(q){
   const p={regiones:[...q.regiones],ciudades:[...q.ciudades],excluir:[...q.excluir],sinAero:[...q.sinAero],meses:q.meses,origenes:q.origenes,
     presupuesto:q.presupuesto,diasMin:q.diasMin,diasMax:q.diasMax,maxEsc:q.maxEsc??1,maxHoras:q.maxHoras,pesos:{...PESOS0},
-    sinLimite:q.sinLimite,origenAbierto:q.origenAbierto,interes:null,destinoLibre:!q.ciudades.length,resumen:''};
+    sinLimite:q.sinLimite,origenAbierto:q.origenAbierto,interes:null,destinoLibre:!q.ciudades.length,resumen:'',ia:!!q.ia};
   if(q.interes)aplicarInteres(p,q.interes);
   if(q.cerca&&!q.regiones.length&&!q.ciudades.length){p.regiones=['brasil'];p.ciudades=[];p.destinoLibre=true}
   if(q.barato)p.pesos.precio=60;

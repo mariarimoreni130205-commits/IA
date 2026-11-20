@@ -100,14 +100,14 @@
 
         <section class="assistant" id="assistant" aria-labelledby="assistant-title">
           <div class="assistant-summary">
-            <div class="assistant-label"><span class="assistant-symbol" data-icon="sliders"></span><span>AFINEMOS<br>TU VIAJE</span></div>
-            <div class="assistant-intro"><h2 id="assistant-title">Tu viaje cambia. La búsqueda también.</h2><p>Pedile al asistente que ajuste las opciones.</p><div class="suggestions"><button data-prompt="Prefiero vuelos directos">Prefiero vuelos directos</button><button data-prompt="Busquemos algo más barato">Busquemos algo más barato</button><button data-prompt="¿Por qué Lisboa?">¿Por qué Lisboa?</button></div></div>
+            <div class="assistant-label"><span class="assistant-symbol" data-icon="sliders"></span><span>TU COPILOTO<br>DE VIAJE</span></div>
+            <div class="assistant-intro"><h2 id="assistant-title">Tu viaje cambia. La búsqueda también.</h2><p>Preguntale lo que quieras sobre estos vuelos o pedile que ajuste la búsqueda.</p><div class="suggestions"><button data-prompt="Prefiero vuelos directos">Prefiero vuelos directos</button><button data-prompt="Busquemos algo más barato">Busquemos algo más barato</button><button data-prompt="¿Por qué Lisboa?">¿Por qué Lisboa?</button></div></div>
             <button class="round-button" data-action="toggle-chat" aria-label="Abrir conversación" aria-expanded="false" id="toggle-chat"><span data-icon="arrow"></span></button>
           </div>
           <div id="chat-panel" class="chat-panel" hidden>
-            <div id="chat-messages" class="chat-messages" role="log" aria-live="polite" aria-label="Conversación con el asistente"></div>
-            <form id="chat-form" class="chat-form"><label class="sr-only" for="chat-input">Tu mensaje</label><input id="chat-input" placeholder="Más barato, más días, sin escalas…" maxlength="800" autocomplete="off"><button class="round-button" id="chat-send" type="submit" aria-label="Enviar mensaje"><span data-icon="arrow"></span></button></form>
-            <p class="chat-note">El asistente compara opciones con tus preferencias. Precios sujetos a disponibilidad.</p>
+            <div id="chat-messages" class="chat-messages" role="log" aria-live="polite" aria-label="Conversación con el copiloto"></div>
+            <form id="chat-form" class="chat-form"><label class="sr-only" for="chat-input">Tu mensaje</label><input id="chat-input" placeholder="¿Cuál me conviene? ¿Qué hay para hacer allá? Más barato, sin escalas…" maxlength="800" autocomplete="off"><button class="round-button" id="chat-send" type="submit" aria-label="Enviar mensaje"><span data-icon="arrow"></span></button></form>
+            <p class="chat-note">Copiloto con IA: usa solo los vuelos de esta búsqueda y puede equivocarse. Precios sujetos a disponibilidad; los simulados no se pueden reservar.</p>
           </div>
         </section>
 
@@ -155,12 +155,11 @@
               <div class="world-controls">
                 <button type="button" id="world-zoom-out" aria-label="Alejar el mundo" title="Alejar" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg></button>
                 <button type="button" id="world-zoom-in" aria-label="Acercar el mundo" title="Acercar" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12M12 6v12"/></svg></button>
-                <button type="button" id="world-pause" aria-label="Pausar animación" aria-pressed="false" title="Pausar animación" disabled><svg class="world-pause-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg><svg class="world-play-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 11 7-11 7Z"/></svg></button>
                 <button type="button" id="world-reset" aria-label="Volver a la vista inicial" title="Volver a la vista inicial" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10a8 8 0 1 1 1 7M4 4v6h6"/></svg></button>
               </div>
             </div>
             <p class="world-credits">Texturas: <a href="https://www.solarsystemscope.com/textures/" target="_blank" rel="noopener noreferrer">Solar System Scope</a> · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a></p>
-            <p class="sr-only" id="world-keyboard-help">Globo interactivo con rutas simuladas. Arrastrá con el mouse o un dedo para girarlo. Pellizcá con dos dedos o usá los botones para acercar y alejar. Tocá una ciudad o un avión para ver sus detalles. También podés elegirlos en Explorar ciudades y vuelos. Flechas para girar, más y menos para zoom, Inicio para restablecer, espacio para pausar y Escape para cerrar el detalle.</p>
+            <p class="sr-only" id="world-keyboard-help">Globo interactivo con rutas simuladas. Arrastrá con el mouse o un dedo para girarlo. Pellizcá con dos dedos o usá los botones para acercar y alejar. Tocá una ciudad o un avión para ver sus detalles. También podés elegirlos en Explorar ciudades y vuelos. Flechas para girar, más y menos para zoom, Inicio para restablecer y Escape para cerrar el detalle.</p>
             <p class="sr-only" id="world-announcement" aria-live="polite"></p>
           </div>
         </section>

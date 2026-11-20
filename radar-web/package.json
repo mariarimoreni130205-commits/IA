@@ -7,6 +7,6 @@
     "dev": "node server.mjs",
     "start": "node server.mjs",
     "test": "node --test tests/*.test.mjs",
-    "check": "node --check engine.js && node --check app.js && node --check api/vuelos.js && node --check globe.js && node --check globe-scene.js && node --check globe-routes.js && node --check airport-data.js && node --check globe-aircraft.js && node --check globe-ui.js && node --check hero.js && node --check navigation.js"
+    "check": "node --check engine.js && node --check app.js && node --check api/vuelos.js && node --check api/ia.js && node --check globe.js && node --check globe-scene.js && node --check globe-routes.js && node --check airport-data.js && node --check globe-aircraft.js && node --check globe-ui.js && node --check hero.js && node --check navigation.js"
   }
 }
